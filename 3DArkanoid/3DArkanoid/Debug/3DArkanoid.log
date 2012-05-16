@@ -1,0 +1,48 @@
+﻿Build started 14-5-2012 10:13:56.
+     1>Project "C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\3DArkanoid\3DArkanoid.vcxproj" on node 2 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Debug\3DArkanoid.lastbuildstate".
+       InitializeBuildStatus:
+         Touching "Debug\3DArkanoid.unsuccessfulbuild".
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\OpenCV2.3\build\include" /I"C:\Program Files\OpenCV2.3\build\include\opencv2" /I"C:\Program Files\OpenCV2.3\build\include\opencv" /I"C:\Program Files\glut-3.7.6-bin" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>c:\program files\opencv2.3\build\include\opencv2\flann\logger.h(70): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
+     1>c:\users\jeroen\documents\visual studio 2010\projects\3darkanoid\3darkanoid\main.cpp(47): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(304) : see declaration of 'scanf'
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\3DArkanoid.exe.embed.manifest.res" Debug\3DArkanoid_manifest.rc 
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\Debug\3DArkanoid.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\OpenCV2.3\build\x64\vc10\lib" /LIBPATH:"C:\Program Files\glut-3.7.6-bin" glut32.lib opengl32.lib opencv_core230d.lib opencv_highgui230d.lib opencv_video230d.lib opencv_ml230d.lib opencv_legacy230d.lib opencv_imgproc230d.lib opencv_calib3d230d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\3DArkanoid.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\Debug\3DArkanoid.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\Debug\3DArkanoid.lib" /MACHINE:X86 Debug\3DArkanoid.exe.embed.manifest.res
+         Debug\main.obj
+     1>main.obj : error LNK2019: unresolved external symbol _cvReleaseMat referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvReleaseCapture referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvDestroyWindow referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvWaitKey referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvLine referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvShowImage referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvOr referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvAnd referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvWarpPerspective referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvGetPerspectiveTransform referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvNot referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvSetZero referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvFindCornerSubPix referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvCvtColor referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvFindChessboardCorners referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvCreateImage referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvGetSize referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvQueryFrame referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvNamedWindow referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvCreateMat referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvFlip referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvLoadImage referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvCreateFileCapture referenced in function _main
+     1>main.obj : error LNK2019: unresolved external symbol _cvCreateCameraCapture referenced in function _main
+     1>C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\Debug\3DArkanoid.exe : fatal error LNK1120: 24 unresolved externals
+     1>Done Building Project "C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\3DArkanoid\3DArkanoid.vcxproj" (rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:02.59
