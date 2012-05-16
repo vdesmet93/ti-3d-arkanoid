@@ -10,6 +10,8 @@ BouncingBall::BouncingBall(float x, float y): Sprite(x, y)
 	this->radius = 0.1f;
 	this->w = 0.2f;
 	this->h = 0.2f;
+	this->z = 0.0f;
+	this->d = 0.2f;
 }
 
 void BouncingBall:: move()
@@ -67,16 +69,11 @@ void BouncingBall:: update()
 void BouncingBall:: draw()
 {
 	glColor3f(0.7f, 0.7f, 0.7f);
-	float increment = 2*M_PI/50;
-	float cx = getCenterX();
-	float cy = getCenterY();
-	float radius = 0.1f;
-	for(float angle = 0; angle < 2*M_PI; angle+=increment)
-	{
-		glBegin(GL_POLYGON);
-		glVertex2d(cx, cy);	
-		glVertex2d(cx + cos(angle)* radius, cy + sin(angle)*radius);
-		glVertex2d(cx + cos(angle + increment)*radius, cy + sin(angle + increment)*radius);
-		glEnd();
-	}
+	
+	GLUquadricObj* sphere = gluNewQuadric();
+	glPushMatrix();
+	glTranslatef(x+(w/2), y+(h/2), z+(d/2));
+	gluSphere(sphere, w/2, 25, 25);
+	glPopMatrix();
+
 }
