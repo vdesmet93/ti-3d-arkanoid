@@ -1,6 +1,7 @@
 #include "bouncingBall.h"
 #include <stdio.h>
 
+
 BouncingBall::BouncingBall(){}
 
 BouncingBall::BouncingBall(float x, float y): Sprite(x, y)
@@ -24,38 +25,67 @@ void BouncingBall:: move()
 	else if(y < -1.0f){y = -1.0f; speedY=-speedY;}
 }
 
+void BouncingBall:: applyBoost(float amount)
+{
+	this->speedX += amount;
+	move();
+}
+
 void BouncingBall:: bounceBack()
 {
 	speedY = -speedY;
 	move();
 }
 
-void BouncingBall::collide(const Sprite& anotherSprite)
+bool BouncingBall::collide(const Sprite& anotherSprite)
 {
+	bool boost = false;
+	bool left = false, right = false, down = false, up = false;
 	//Check left side
 	if(x+w >= anotherSprite.getX() && x+w <= anotherSprite.getX()+anotherSprite.getW())
 	{
-		speedX = -speedX;
-		printf("\nLEFT");
+		left = true;
 	}
 	//Check right side
 	if(x <= anotherSprite.getX()+anotherSprite.getW() && x >= anotherSprite.getX())
 	{
-		speedX = -speedX;
-		printf("\nRIGHT");
+		right = true;
 	}
 	//Check lower side
 	if(y+h >= anotherSprite.getY() && y+h <= anotherSprite.getY()+anotherSprite.getH())
 	{
-		speedY = -speedY;
-		printf("\nDOWN");
+		down = true;
 	}
 	//Check upper side
 	if(y <= anotherSprite.getY()+anotherSprite.getH() && y >= anotherSprite.getY())
 	{
-		speedY = -speedY;
-		printf("\nUP");
+		up = true;
 	}
+	//Bounce Left
+	if(left && !right && speedX > 0)
+	{
+		speedX = -speedX;
+		boost = true;
+	}
+	//Bounce Right
+	if(right && !left && speedX < 0)
+	{
+		speedX = -speedX;
+		boost = true;
+	}
+	//Bounce Down
+	if(down && !up && speedY > 0)
+	{
+		speedY = -speedY;
+		boost = true;
+	}
+	//Bounce Up
+	if(up && !down && speedY < 0)
+	{
+		speedY = -speedY;
+		boost = true;
+	}
+	return boost;
 }
 
 float BouncingBall:: getCenterX(){return x + radius;}

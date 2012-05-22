@@ -11,9 +11,10 @@ class BouncingBall: public Sprite
 	BouncingBall::BouncingBall();
 	BouncingBall::BouncingBall(float x, float y);
 
+	void BouncingBall:: applyBoost(float amount);
 	void BouncingBall:: move();
 	void BouncingBall::bounceBack();
-	void BouncingBall::collide(const Sprite& anotherSprite);
+	bool BouncingBall::collide(const Sprite& anotherSprite);
 	float BouncingBall:: getCenterX();
 	float BouncingBall:: getCenterY();
 	void BouncingBall:: update();

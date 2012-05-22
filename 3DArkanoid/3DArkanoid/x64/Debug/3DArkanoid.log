@@ -1,12 +1,18 @@
-﻿Build started 16-5-2012 14:56:50.
-     1>Project "C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\3DArkanoid\3DArkanoid.vcxproj" on node 2 (build target(s)).
-     1>InitializeBuildStatus:
+﻿Build started 22-5-2012 19:58:36.
+     1>Project "C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\3DArkanoid\3DArkanoid.vcxproj" on node 2 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "x64\Debug\3DArkanoid.lastbuildstate".
+       InitializeBuildStatus:
          Creating "x64\Debug\3DArkanoid.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\OpenCV2.3\build\include" /I"C:\Program Files\OpenCV2.3\build\include\opencv2" /I"C:\Program Files\OpenCV2.3\build\include\opencv" /I"C:\Program Files\glut-3.7.6-bin" /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt main.cpp
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\OpenCV2.3\build\include" /I"C:\Program Files\OpenCV2.3\build\include\opencv2" /I"C:\Program Files\OpenCV2.3\build\include\opencv" /I"C:\Program Files\glut-3.7.6-bin" /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt bouncingBall.cpp main.cpp platform.cpp sprite.cpp
+         sprite.cpp
+         platform.cpp
          main.cpp
+         bouncingBall.cpp
+         Generating Code...
        ManifestResourceCompile:
-         All outputs are up-to-date.
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64\Debug\3DArkanoid.exe.embed.manifest.res" x64\Debug\3DArkanoid_manifest.rc 
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\OpenCV2.3\build\x64\vc10\lib" /LIBPATH:"C:\Program Files\glut-3.7.6-bin" opencv_core230d.lib opencv_highgui230d.lib opencv_video230d.lib opencv_ml230d.lib opencv_legacy230d.lib opencv_imgproc230d.lib opencv_calib3d230d.lib glut64.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\3DArkanoid.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.lib" /MACHINE:X64 x64\Debug\3DArkanoid.exe.embed.manifest.res
          x64\Debug\bouncingBall.obj
@@ -15,16 +21,21 @@
          x64\Debug\sprite.obj
          3DArkanoid.vcxproj -> C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.exe
        Manifest:
+         Deleting file "x64\Debug\3DArkanoid.exe.embed.manifest".
          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"x64\Debug\3DArkanoid.exe.embed.manifest" /manifest x64\Debug\3DArkanoid.exe.intermediate.manifest
-         All outputs are up-to-date.
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64\Debug\3DArkanoid.exe.embed.manifest.res" x64\Debug\3DArkanoid_manifest.rc 
        LinkEmbedManifest:
-         All outputs are up-to-date.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\OpenCV2.3\build\x64\vc10\lib" /LIBPATH:"C:\Program Files\glut-3.7.6-bin" opencv_core230d.lib opencv_highgui230d.lib opencv_video230d.lib opencv_ml230d.lib opencv_legacy230d.lib opencv_imgproc230d.lib opencv_calib3d230d.lib glut64.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\3DArkanoid.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.lib" /MACHINE:X64 x64\Debug\3DArkanoid.exe.embed.manifest.res
+         x64\Debug\bouncingBall.obj
+         x64\Debug\main.obj
+         x64\Debug\platform.obj
+         x64\Debug\sprite.obj
          3DArkanoid.vcxproj -> C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\x64\Debug\3DArkanoid.exe
        FinalizeBuildStatus:
          Deleting file "x64\Debug\3DArkanoid.unsuccessfulbuild".
          Touching "x64\Debug\3DArkanoid.lastbuildstate".
-     1>Done Building Project "C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\3DArkanoid\3DArkanoid.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\Jeroen\Documents\Visual Studio 2010\Projects\3DArkanoid\3DArkanoid\3DArkanoid.vcxproj" (rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.47
+Time Elapsed 00:00:01.57

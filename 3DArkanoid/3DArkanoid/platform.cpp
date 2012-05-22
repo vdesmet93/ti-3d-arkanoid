@@ -1,4 +1,5 @@
 #include "platform.h"
+#include "stdio.h"
 
 Platform::Platform(){}
 
@@ -8,6 +9,12 @@ Platform::Platform(float x, float y): Sprite(x, y)
 	this->h = 0.2f;
 	this->z = 0.0f;
 	this->d = 0.2f;
+	lastX = x;
+}
+
+void Platform:: applyBoost(BouncingBall& ball)
+{
+	ball.applyBoost(speedX);
 }
 
 void Platform:: moveLeft()
@@ -24,7 +31,13 @@ void Platform:: moveRight()
 
 void Platform:: update()
 {
-	
+	if(timesUpdated%100==0)
+	{
+		speedX = (x-lastX)/1000;
+		lastX = x;
+		//printf("\nSpeed: %f", speedX);
+	}
+	timesUpdated++;
 }
 
 void Platform:: draw()

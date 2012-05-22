@@ -8,6 +8,7 @@
 
 BouncingBall bBall;
 Platform platform;
+float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
 
 void Display(void)
 {
@@ -16,7 +17,8 @@ void Display(void)
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();                       
-    gluLookAt(0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    gluLookAt(0.0f, 0.2f, 0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	//gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	//Draw grid
@@ -63,9 +65,13 @@ void IdleFunc(void)
 {
 	if(bBall.intersects(platform))
 	{
-		bBall.collide(platform);
+		if(bBall.collide(platform))
+		{
+			platform.applyBoost(bBall);
+		}
 	}
 	bBall.update();
+	platform.update();
 	glutPostRedisplay();
 }
 
@@ -75,6 +81,12 @@ void Keyboard(unsigned char key, int x, int y)
 	{
 		case 'd': platform.moveLeft(); break;
 		case 'l': platform.moveRight(); break;
+		//case 'z': xLook+=0.1f; printf("X: %f", xLook); break;
+		//case 'x': yLook+=0.1f; printf("Y: %f", yLook); break;
+		//case 'c': zLook+=0.1f; printf("Z: %f", zLook); break;
+		//case 'q': xLook-=0.1f; printf("X: %f", xLook); break;
+		//case 'w': yLook-=0.1f; printf("Y: %f", yLook); break;
+		//case 'e': zLook-=0.1f; printf("Z: %f", zLook); break;
 	}
 }
 
