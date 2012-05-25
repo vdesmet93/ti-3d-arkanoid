@@ -96,14 +96,14 @@ bool BouncingBall::collide(const Sprite& anotherSprite)
 
 void BouncingBall::incSpd()
 {
-        this->speedX += 0.001;
-        this->speedY += 0.001;
+        this->speedX += (this->speedX < 0) ? -0.001 : 0.001;
+        this->speedY += (this->speedY < 0) ? -0.001 : 0.001;
 }
 
 void BouncingBall::decSpd()
 {
-        this->speedX -= 0.001;
-        this->speedY -= 0.001;
+        this->speedX += (this->speedX < 0) ? -0.001 : 0.001;
+        this->speedY += (this->speedY < 0) ? -0.001 : 0.001;
 }
 
 float BouncingBall:: getCenterX(){return x + radius;}
