@@ -9,6 +9,7 @@ private:
 public:
 	BouncingBall();
 	BouncingBall(float x, float y);
+        ~BouncingBall();
 
 	void applyBoost(float amount);
 	void move();
@@ -18,6 +19,8 @@ public:
 	float getCenterY();
 	void update();
 	void draw();
+        void incSpd();
+        void decSpd();
 };
 
 #endif

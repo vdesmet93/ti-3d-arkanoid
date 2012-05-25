@@ -13,13 +13,14 @@
 
 class Sprite
 {
-	protected:
+protected:
 	float x, y, z, w, h, d;
 
-	public:
+public:
 	Sprite();
 	Sprite(float x, float y);
 	Sprite(float x, float y, float w, float h);
+        ~Sprite();
 
 	float getX()const{return x;}
 	float getY()const{return y;}
@@ -31,7 +32,7 @@ class Sprite
 	virtual void update()=0;
 	virtual void draw()=0;
 
-	private:
+private:
 	float max(float value1, float value2);
 	float min(float value1, float value2);
 };

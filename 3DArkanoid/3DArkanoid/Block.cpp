@@ -1,12 +1,15 @@
 #include <iostream>
 #include "Block.hpp"
+#include <string.h>
 
 Block::Block()
 {
+        memset(this, 0, sizeof(*this));
 }
 
 Block::~Block()
 {
+        memset(this, 0, sizeof(*this));
 }
 
 void Block::update()

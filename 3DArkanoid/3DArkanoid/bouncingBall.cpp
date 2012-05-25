@@ -2,12 +2,18 @@
 #include <stdio.h>
 #include <iostream>
 
-BouncingBall::BouncingBall(){}
+BouncingBall::~BouncingBall()
+{
+}
+
+BouncingBall::BouncingBall()
+{
+}
 
 BouncingBall::BouncingBall(float x, float y): Sprite(x, y)
 {
-	this->speedX = 0.0005f;
-	this->speedY = 0.0008f;
+	this->speedX = 0.0055f;
+	this->speedY = 0.0088f;
 	this->radius = 0.1f;
 	this->w = 0.2f;
 	this->h = 0.2f;
@@ -86,6 +92,18 @@ bool BouncingBall::collide(const Sprite& anotherSprite)
 		boost = true;
 	}
 	return boost;
+}
+
+void BouncingBall::incSpd()
+{
+        this->speedX += 0.001;
+        this->speedY += 0.001;
+}
+
+void BouncingBall::decSpd()
+{
+        this->speedX -= 0.001;
+        this->speedY -= 0.001;
 }
 
 float BouncingBall:: getCenterX(){return x + radius;}

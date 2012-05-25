@@ -1,6 +1,12 @@
 #include "sprite.h"
 
-Sprite::Sprite(){}
+Sprite::~Sprite()
+{
+}
+
+Sprite::Sprite()
+{
+}
 
 Sprite::Sprite(float x2, float y2)
 {

@@ -95,13 +95,14 @@ void timerfunc(int val)
         bBall.update();
         platform.update();
         glutPostRedisplay();
-        glutTimerFunc(1, timerfunc, 0);
+        glutTimerFunc(25, timerfunc, 0);
 }
 
 void Keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
+                case 'h':
 		case 'd': platform.moveLeft(); break;
 		case 'l': platform.moveRight(); break;
 		//case 'z': xLook+=0.1f; printf("X: %f", xLook); break;
@@ -110,6 +111,14 @@ void Keyboard(unsigned char key, int x, int y)
 		//case 'q': xLook-=0.1f; printf("X: %f", xLook); break;
 		//case 'w': yLook-=0.1f; printf("Y: %f", yLook); break;
 		//case 'e': zLook-=0.1f; printf("Z: %f", zLook); break;
+                case '=':
+                        bBall.incSpd();
+                        break;
+                case '-':
+                        bBall.decSpd();
+                        break;
+                default:
+                        break;
 	}
 }
 
