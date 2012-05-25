@@ -17,4 +17,6 @@
 *.ipch*
 *.ilk*
 *.lastbuildstate*
-
+*.vcxproj*
+*.filters*
+*.users*
