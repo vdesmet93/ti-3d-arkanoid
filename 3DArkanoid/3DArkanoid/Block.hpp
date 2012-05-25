@@ -16,6 +16,7 @@ private:
 	uint8_t Interacts; // 0 if not interacting
 	Block* power_up;
 	int hitbox;
+        float radius;
 protected:
 public:
 	Block();
