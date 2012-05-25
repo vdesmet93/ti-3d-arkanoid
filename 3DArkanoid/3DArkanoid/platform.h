@@ -10,14 +10,14 @@ class Platform: public Sprite
 	int timesUpdated;
 
 	public:
-	Platform::Platform();
-	Platform::Platform(float x, float y);
+	Platform();
+	Platform(float x, float y);
 
-	void Platform:: applyBoost(BouncingBall& ball);
-	void Platform:: moveLeft();
-	void Platform:: moveRight();
-	void Platform:: update();
-	void Platform:: draw();
+	void applyBoost(BouncingBall& ball);
+	void moveLeft();
+	void moveRight();
+	void update();
+	void draw();
 };
 
 #endif

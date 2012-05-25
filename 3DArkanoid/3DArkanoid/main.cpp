@@ -1,11 +1,16 @@
+
+#ifdef __GNUC__
+#include <GL/glut.h>
+#else
 #include <glut.h>
-#include <gl/GL.h>
+#endif
+#include <GL/gl.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include "bouncingBall.h"
 #include "platform.h"
-#include "block.h"
+#include "Block.hpp"
 
 BouncingBall bBall;
 Platform platform;
@@ -19,27 +24,27 @@ void Display(void)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();                       
-    gluLookAt(0.0f, 0.2f, 0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	glLoadIdentity();
+	gluLookAt(0.0f, 0.2f, 0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	//gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	//Draw grid
 	for(float x = -1.00f; x < 1.00f; x+=0.1f)
 	{
-		glBegin(GL_LINES); 	
+		glBegin(GL_LINES);
 		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(x, -1.0); 
-		glVertex2f(x, 1.0);  
-		glEnd();  
+		glVertex2f(x, -1.0);
+		glVertex2f(x, 1.0);
+		glEnd();
 	}
 	for(float y = -1.00f; y < 1.00f; y+=0.1f)
 	{
-		glBegin(GL_LINES); 	
+		glBegin(GL_LINES);
 		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex2f(-1.0, y); 
-		glVertex2f(1.0, y);  
-		glEnd();  
+		glVertex2f(-1.0, y);
+		glVertex2f(1.0, y);
+		glEnd();
 	}
 
 	platform.draw();

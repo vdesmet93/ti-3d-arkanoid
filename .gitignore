@@ -20,3 +20,6 @@
 *.vcxproj*
 *.filters*
 *.users*
+*.bin*
+*.dll*
+arkanoid
