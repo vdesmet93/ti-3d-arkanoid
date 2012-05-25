@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define HITBOX_CIRCLE 0x1
+#define HITBOX_SQUARE 0x2
+
 class Block {
 private:
 	double old_vect[3];
@@ -12,6 +15,7 @@ private:
 	uint32_t colour;
 	uint8_t Interacts; // 0 if not interacting
 	Block* power_up;
+	int hitbox;
 protected:
 public:
 	Block();

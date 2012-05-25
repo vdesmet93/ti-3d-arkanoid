@@ -1,6 +1,6 @@
 #include "bouncingBall.h"
 #include <stdio.h>
-
+#include <iostream>
 
 BouncingBall::BouncingBall(){}
 
@@ -99,7 +99,7 @@ void BouncingBall:: update()
 void BouncingBall:: draw()
 {
 	glColor3f(0.7f, 0.7f, 0.7f);
-	
+
 	GLUquadricObj* sphere = gluNewQuadric();
 	glPushMatrix();
 	glTranslatef(x+(w/2), y+(h/2), z+(d/2));

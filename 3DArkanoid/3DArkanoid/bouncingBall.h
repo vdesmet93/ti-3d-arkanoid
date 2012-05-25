@@ -4,10 +4,9 @@
 
 class BouncingBall: public Sprite
 {
-	private:
+private:
 	float speedX, speedY, radius;
-
-	public:
+public:
 	BouncingBall();
 	BouncingBall(float x, float y);
 

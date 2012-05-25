@@ -83,6 +83,21 @@ void IdleFunc(void)
 	glutPostRedisplay();
 }
 
+void timerfunc(int val)
+{
+        if(bBall.intersects(platform))
+        {
+                if(bBall.collide(platform))
+                {
+                        platform.applyBoost(bBall);
+                }
+        }
+        bBall.update();
+        platform.update();
+        glutPostRedisplay();
+        glutTimerFunc(1, timerfunc, 0);
+}
+
 void Keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -115,7 +130,8 @@ int main(int argc, char* argv[])
 	glutKeyboardFunc (Keyboard);
 	glutMouseFunc (MouseButton);
 	glutMotionFunc (MouseMotion);
-	glutIdleFunc (IdleFunc);
+	//glutIdleFunc (IdleFunc);
+        glutTimerFunc(25, timerfunc, 0);
 	// Turn the flow of control over to GLUT
 	glutMainLoop ();
 	return 0;
