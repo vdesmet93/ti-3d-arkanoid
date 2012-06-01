@@ -6,19 +6,18 @@
 class Platform: public Sprite
 {
 	private:
-	float speedX, lastX, radius;
+	float speedX, lastX;
 	int timesUpdated;
 
 	public:
-	Platform();
-	Platform(float x, float y);
-        ~Platform();
+	Platform::Platform();
+	Platform::Platform(float x, float y);
 
-	void applyBoost(BouncingBall& ball);
-	void moveLeft();
-	void moveRight();
-	void update();
-	void draw();
+	void Platform:: applyBoost(BouncingBall& ball);
+	void Platform:: moveLeft();
+	void Platform:: moveRight();
+	void Platform:: update();
+	void Platform:: draw();
 };
 
 #endif

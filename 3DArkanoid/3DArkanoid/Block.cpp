@@ -1,29 +1,62 @@
-#include <iostream>
-#include "Block.hpp"
-#include <string.h>
+#include "block.h"
+#include "stdio.h"
 
-Block::Block()
+Block::Block(){}
+
+Block::Block(float x, float y, float z, float w, float h, float d): Sprite(x, y, z, w, h, d)
 {
-        memset(this, 0, sizeof(*this));
+	
 }
 
-Block::~Block()
+void Block:: setColor(float red, float green, float blue)
 {
-        memset(this, 0, sizeof(*this));
+	this->red = red;
+	this->green = green;
+	this->blue = blue;
 }
 
-void Block::update()
+void Block:: update()
 {
+
 }
 
-void Block::move(double vect[3])
+void Block:: draw()
 {
-}
+	glBegin(GL_QUADS);
 
-void Block::use()
-{
-}
+	glColor3f(red, green, blue);
+	//back
+	glVertex3f(x, y, z);
+	glVertex3f(x, y+h, z);
+	glVertex3f(x+w, y+h, z);
+	glVertex3f(x+w, y, z);
+	//front
+	glVertex3f(x, y, z+d);
+	glVertex3f(x, y+h, z+d);
+	glVertex3f(x+w, y+h, z+d);
+	glVertex3f(x+w, y, z+d);
 
-void Block::draw()
-{
+	//down
+	glVertex3f(x, y, z+d);
+	glVertex3f(x+w, y, z+d);
+	glVertex3f(x+w, y, z);
+	glVertex3f(x, y, z);
+	//up
+	glVertex3f(x, y+h, z+d);
+	glVertex3f(x+w, y+h, z+d);
+	glVertex3f(x+w, y+h, z);
+	glVertex3f(x, y+h, z);
+
+	//left
+	glVertex3f(x, y, z+d);
+	glVertex3f(x, y, z);
+	glVertex3f(x, y+h, z);
+	glVertex3f(x, y+h, z+d);
+	//right
+	glVertex3f(x+w, y, z+d);
+	glVertex3f(x+w, y, z);
+	glVertex3f(x+w, y+h, z);
+	glVertex3f(x+w, y+h, z+d);
+
+	glEnd();
 }

@@ -1,25 +1,29 @@
 #include "sprite.h"
 
-Sprite::~Sprite()
+Sprite::Sprite(){}
+
+Sprite::Sprite(float x, float y)
 {
+	this->x = x;
+	this->y = y;
 }
 
-Sprite::Sprite()
-{
-}
-
-Sprite::Sprite(float x2, float y2)
-{
-	x = x2;
-	y = y2;
-}
-
-Sprite::Sprite(float x2, float y2, float w2, float h2)
+Sprite::Sprite(float x, float y, float w, float h)
 {
 	this->x = x;
 	this->y = y;
 	this->w = w;
 	this->h = h;
+}
+
+Sprite::Sprite(float x, float y, float z, float w, float h, float d)
+{
+	this->x = x;
+	this->y = y;
+	this->z = z;
+	this->w = w;
+	this->h = h;
+	this->d = d;
 }
 
 bool Sprite::intersects(const Sprite& anotherSprite)

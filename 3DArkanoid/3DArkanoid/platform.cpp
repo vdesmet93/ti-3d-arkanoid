@@ -1,13 +1,7 @@
 #include "platform.h"
 #include "stdio.h"
 
-Platform::~Platform()
-{
-}
-
-Platform::Platform()
-{
-}
+Platform::Platform(){}
 
 Platform::Platform(float x, float y): Sprite(x, y)
 {

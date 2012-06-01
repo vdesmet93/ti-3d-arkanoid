@@ -4,23 +4,21 @@
 
 class BouncingBall: public Sprite
 {
-private:
+	private:
 	float speedX, speedY, radius;
-public:
-	BouncingBall();
-	BouncingBall(float x, float y);
-        ~BouncingBall();
 
-	void applyBoost(float amount);
-	void move();
-	void bounceBack();
-	bool collide(const Sprite& anotherSprite);
-	float getCenterX();
-	float getCenterY();
-	void update();
-	void draw();
-        void incSpd();
-        void decSpd();
+	public:
+	BouncingBall::BouncingBall();
+	BouncingBall::BouncingBall(float x, float y);
+
+	void BouncingBall:: applyBoost(float amount);
+	void BouncingBall:: move();
+	void BouncingBall::bounceBack();
+	bool BouncingBall::collide(const Sprite& anotherSprite);
+	float BouncingBall:: getCenterX();
+	float BouncingBall:: getCenterY();
+	void BouncingBall:: update();
+	void BouncingBall:: draw();
 };
 
 #endif

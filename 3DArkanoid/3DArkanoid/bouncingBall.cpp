@@ -1,19 +1,13 @@
 #include "bouncingBall.h"
 #include <stdio.h>
-#include <iostream>
 
-BouncingBall::~BouncingBall()
-{
-}
 
-BouncingBall::BouncingBall()
-{
-}
+BouncingBall::BouncingBall(){}
 
 BouncingBall::BouncingBall(float x, float y): Sprite(x, y)
 {
-	this->speedX = 0.0055f;
-	this->speedY = 0.0088f;
+	this->speedX = 0.0005f;
+	this->speedY = 0.0008f;
 	this->radius = 0.1f;
 	this->w = 0.2f;
 	this->h = 0.2f;
@@ -94,18 +88,6 @@ bool BouncingBall::collide(const Sprite& anotherSprite)
 	return boost;
 }
 
-void BouncingBall::incSpd()
-{
-        this->speedX += (this->speedX < 0) ? -0.001 : 0.001;
-        this->speedY += (this->speedY < 0) ? -0.001 : 0.001;
-}
-
-void BouncingBall::decSpd()
-{
-        this->speedX += (this->speedX < 0) ? -0.001 : 0.001;
-        this->speedY += (this->speedY < 0) ? -0.001 : 0.001;
-}
-
 float BouncingBall:: getCenterX(){return x + radius;}
 float BouncingBall:: getCenterY(){return y + radius;}
 
@@ -117,7 +99,7 @@ void BouncingBall:: update()
 void BouncingBall:: draw()
 {
 	glColor3f(0.7f, 0.7f, 0.7f);
-
+	
 	GLUquadricObj* sphere = gluNewQuadric();
 	glPushMatrix();
 	glTranslatef(x+(w/2), y+(h/2), z+(d/2));
