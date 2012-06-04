@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include <glut.h>
 #include <gl/GL.h>
@@ -17,21 +18,27 @@ using namespace std;
 BouncingBall bBall;
 Platform platform;
 float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
-bool grid[10][3];
-Block blocks[10][3];
+bool grid[10][10];
+Block blocks[10][10];
 Block block;
 
 //OpenCV
 IplImage *frame, *labelImg;
 CvCapture* capture = cvCaptureFromCAM(1);
 CvBlobs blobs;
+float cX, cY;
 
 //Texture
 GLuint TEXTURE1 = 10;
 
+//Prototypes
+void IdleFunc(int value);
 void updateCameraFrame();
 void analyseCameraFrame();
 void DrawIplImage(IplImage *image);
+void fillBlocks();
+void checkCollisionBall();
+void removeBlock(int x, int y);
 
 void Display(void)
 {
@@ -50,9 +57,9 @@ void Display(void)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();                       
+	glLoadIdentity();  
     gluLookAt(0.0f, 0.2f, 0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	//gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
+	gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	//Draw grid
@@ -76,16 +83,16 @@ void Display(void)
 	platform.draw();
 	block.draw();
 	bBall.draw();
-	//for(int x = 0; x < 10; x++)
-	//{
-	//	for(int y = 0; y < 3; y++)
-	//	{
-	//		if(grid[x][y])
-	//		{
-	//			blocks[x][y].draw();
-	//		}
-	//	}
-	//}
+	for(int x = 0; x < 10; x++)
+	{
+		for(int y = 0; y < 10; y++)
+		{
+			if(grid[x][y])
+			{
+				blocks[x][y].draw();
+			}
+		}
+	}
 
 	glutSwapBuffers();
 }
@@ -107,6 +114,28 @@ void DrawIplImage(IplImage *image)
 	glRasterPos2i(x, y);
     glPixelZoom(xZoom, yZoom);
     glDrawPixels(image->width, image->height, format, GL_UNSIGNED_BYTE, image->imageData);
+}
+
+void fillBlocks()
+{
+	for(int x = 0; x < 10; x++)
+	{
+		for(int y = 7; y < 10; y++)
+		{
+			float x2 = -1.0f+(x*1.0f/5);
+			float y2 = -1.0f+(y*1.0f/5);
+			grid[x][y] = true;
+			blocks[x][y] = Block(x2, y2, 0.0f, 0.2f, 0.1f, 0.2f);
+			if(x%2==0)
+			{
+				blocks[x][y].setColor(0.6f, 0.5f, 0.1f);
+			}
+			else
+			{
+				blocks[x][y].setColor(0.1f, 0.3f, 0.5f);
+			}
+		}
+	}
 }
 
 void Reshape(GLint width, GLint height)
@@ -141,22 +170,29 @@ void analyseCameraFrame()
 {
 	cvReleaseImage(&labelImg);
 	cvReleaseBlobs(blobs);
-
-	cvThreshold(frame, frame, 0, 50, CV_THRESH_BINARY);
+	//printf("Analyse!\n");
+	cvThreshold(frame, frame, 0, 150, CV_THRESH_BINARY);
 	labelImg = cvCreateImage(cvGetSize(frame), IPL_DEPTH_LABEL, 1);
-	unsigned int result=cvLabel(frame, labelImg, blobs);
-
-	for (CvBlobs::const_iterator it=blobs.begin(); it!=blobs.end(); ++it)
+	//cvDilate(frame ,frame ,NULL,1);
+	//unsigned int result=cvLabel(frame, labelImg, blobs);
+	
+	//for (CvBlobs::const_iterator it=blobs.begin(); it!=blobs.end(); ++it)
+	//{
+	//	cout << "Blob #" << it->second->label << ": Centroid = (" << it->second->centroid.x << ", " << it->second->centroid.y << ")" << endl;
+	//}
+	cvSmooth(frame, frame, CV_GAUSSIAN, 5, 5 );
+	CvMemStorage* storage = cvCreateMemStorage(0);
+	CvSeq* results = cvHoughCircles(frame, storage, CV_HOUGH_GRADIENT, 4, frame->width/10);
+	for( int i = 0; i < results->total; i++ ) 
 	{
-		cout << "Blob #" << it->second->label << ": Centroid = (" << it->second->centroid.x << ", " << it->second->centroid.y << ")" << endl;
+		float* p = (float*) cvGetSeqElem( results, i );
+		printf("\nCircle%d: X: %f, Y: %f", i, p[0], p[1]);
 	}
 }
 
-void IdleFunc(void)
+void checkCollisionBall()
 {
-	//updateCameraFrame();
-	//analyseCameraFrame();
-
+	//platform check
 	if(bBall.intersects(platform))
 	{
 		if(bBall.collide(platform))
@@ -164,15 +200,53 @@ void IdleFunc(void)
 			platform.applyBoost(bBall);
 		}
 	}
-	else if(bBall.intersects(block))
+	//blocks check
+	int x = (5.0f*(bBall.getCenterX()+1.0f));
+	int y = (5.0f*(bBall.getCenterY()+1.0f));
+	if(grid[x][y+1] && bBall.intersects(blocks[x][y+1]))
 	{
-		bBall.collide(block);
+		bBall.collide(blocks[x][y+1]);
+		removeBlock(x, y+1);
 	}
-	bBall.update();
-	platform.update();
-	glutPostRedisplay();
+	else if(grid[x+1][y] && bBall.intersects(blocks[x+1][y]))
+	{
+		bBall.collide(blocks[x+1][y]);
+		removeBlock(x+1, y);
+	}
+	else if(grid[x-1][y] && bBall.intersects(blocks[x-1][y]))
+	{
+		bBall.collide(blocks[x-1][y]);
+		removeBlock(x-1, y);
+	}
+	else if(grid[x][y-1] && bBall.intersects(blocks[x][y-1]))
+	{
+		bBall.collide(blocks[x][y-1]);
+		removeBlock(x, y-1);
+	}
 }
 
+void removeBlock(int x, int y)
+{
+	grid[x][y] = 0;
+	blocks[x][y] = Block();
+}
+
+void IdleFunc(int value)
+{
+	//updateCameraFrame();
+	//analyseCameraFrame();
+	bBall.update();
+	platform.update();
+	checkCollisionBall();
+
+	glutPostRedisplay();
+
+	glutTimerFunc(10, IdleFunc, 0);
+}
+
+void Idle() {
+	IdleFunc(0);
+}
 void Keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -190,19 +264,10 @@ void Keyboard(unsigned char key, int x, int y)
 
 int main(int argc, char* argv[])
 {
+	
 	bBall = BouncingBall(0.0f, 0.0f);
-	platform = Platform(0.0f, -0.5f);
-	//for(int x = 0; x < 10; x++)
-	//{
-	//	for(int y = 0; y < 3; y++)
-	//	{
-	//		grid[x][y] = true;
-	//		blocks[x][y] = Block(-1.0f+(float)(x*0.2f), 1.0f-(float)(y*0.1f), 0.0f, 0.2f, 0.1f, 0.2f);
-	//		blocks[x][y].setColor(x*0.1f, y*0.1f, 0.5f);
-	//	}
-	//}
-	block = Block(0.0f, 0.7f, 0.0f, 0.2f, 0.1f, 0.2f);
-	block.setColor(0.6f, 0.3f, 0.1f);
+	platform = Platform(0.0f, -1.0f);
+	fillBlocks();
 
 	glutInit (&argc, argv);
 	glutInitWindowSize (640, 640);
@@ -216,9 +281,10 @@ int main(int argc, char* argv[])
 	glutKeyboardFunc (Keyboard);
 	glutMouseFunc (MouseButton);
 	glutMotionFunc (MouseMotion);
-	glutIdleFunc (IdleFunc);
+		glutIdleFunc (Idle);
 	// Turn the flow of control over to GLUT
 	glutMainLoop ();
+
 	return 0;
 }
 

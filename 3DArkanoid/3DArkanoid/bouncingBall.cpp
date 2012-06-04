@@ -8,11 +8,11 @@ BouncingBall::BouncingBall(float x, float y): Sprite(x, y)
 {
 	this->speedX = 0.0005f;
 	this->speedY = 0.0008f;
-	this->radius = 0.1f;
-	this->w = 0.2f;
-	this->h = 0.2f;
+	this->radius = 0.05f;
+	this->w = 0.1f;
+	this->h = 0.1f;
 	this->z = 0.0f;
-	this->d = 0.2f;
+	this->d = 0.1f;
 }
 
 void BouncingBall:: move()
