@@ -11,8 +11,10 @@
 #include "highgui.h"
 #include "cvblob.h"
 #include <iostream>
-using namespace cvb;
+using namespace cv;
+//using namespace cvb;
 using namespace std;
+
 
 //Game 
 BouncingBall bBall;
@@ -25,8 +27,13 @@ Block block;
 //OpenCV
 IplImage *frame, *labelImg;
 CvCapture* capture = cvCaptureFromCAM(1);
-CvBlobs blobs;
 float cX, cY;
+CvMemStorage *mem;
+CvSeq *contours, *ptr; 
+
+//Test
+IplImage *img, *cc_color; /*IplImage is an image in OpenCV*/
+ 
 
 //Texture
 GLuint TEXTURE1 = 10;
@@ -43,25 +50,25 @@ void removeBlock(int x, int y);
 void Display(void)
 {
 	//Camera 
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear The Screen And The Depth Buffer
-	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_TEXTURE_2D);
-	//if( frame )
-	//{
-	//	DrawIplImage(frame);
-	//}
-	//glutSwapBuffers();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear The Screen And The Depth Buffer
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
+	
+	//glutSwapBuffers();
+
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear The Screen And The Depth Buffer
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();  
-    gluLookAt(0.0f, 0.2f, 0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    //gluLookAt(0.0f, 0.2f, 0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	if( frame )
+	{
+		DrawIplImage(frame);
+	}
 	//Draw grid
 	for(float x = -1.00f; x < 1.00f; x+=0.1f)
 	{
@@ -79,7 +86,6 @@ void Display(void)
 		glVertex2f(1.0, y);  
 		glEnd();  
 	}
-
 	platform.draw();
 	block.draw();
 	bBall.draw();
@@ -93,14 +99,13 @@ void Display(void)
 			}
 		}
 	}
-
 	glutSwapBuffers();
 }
 
 void DrawIplImage(IplImage *image)
 {
-	int x = -1;
-	int y = -1;
+	float x = -1.0f;
+	float y = -1.0f;
 	GLfloat xZoom = 2.0f;
 	GLfloat yZoom = 2.0f;
     GLenum format;
@@ -111,9 +116,11 @@ void DrawIplImage(IplImage *image)
         case 3: format = GL_BGR_EXT; break;
         default: return;
     }
-	glRasterPos2i(x, y);
+	glPushMatrix();
+	glRasterPos2f(x, y);
     glPixelZoom(xZoom, yZoom);
     glDrawPixels(image->width, image->height, format, GL_UNSIGNED_BYTE, image->imageData);
+	glPopMatrix();
 }
 
 void fillBlocks()
@@ -159,6 +166,14 @@ void updateCameraFrame()
 	cvReleaseImage(&frame);
 	//Get latest camera frame
 	frame = cvQueryFrame( capture );
+	//Make sure that width = height
+	cvSetImageROI(frame, cvRect(0,0,480, 480)); 
+	IplImage *frame2 = cvCreateImage(cvGetSize(frame),
+                               frame->depth,
+                               frame->nChannels);
+	cvCopy(frame, frame2, NULL);
+	frame = frame2;
+	//printf("\n%dx%d", frame->width, frame->height);
 	//Convert to grayscale
 	IplImage *gray = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 1 );
 	cvCvtColor(frame, gray, CV_RGB2GRAY );
@@ -168,11 +183,46 @@ void updateCameraFrame()
 
 void analyseCameraFrame()
 {
-	cvReleaseImage(&labelImg);
-	cvReleaseBlobs(blobs);
+	img = frame;
+    cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
+ 
+    cvThreshold(img, img, 100, 200, CV_THRESH_BINARY_INV);
+    mem = cvCreateMemStorage(0);
+
+
+    cvFindContours(img, mem, &contours, sizeof(CvContour), CV_RETR_CCOMP,
+        CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
+
+	int largestArea = 0;
+	Rect largestRect;
+    for (ptr = contours; ptr != NULL; ptr = ptr->h_next) 
+	{
+        //CvScalar color = CV_RGB( rand()&255, rand()&255, rand()&255 );
+        cvDrawContours(cc_color, ptr, CV_RGB(255,0,0), CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
+		Rect boundingRect = cvBoundingRect(ptr,0);
+		int currentArea = boundingRect.width*boundingRect.height;
+		if(currentArea > largestArea)
+		{
+			largestArea = currentArea;
+			largestRect = boundingRect;
+		}
+		
+		//printf("Size: %d", contours->total);
+    }
+	cvRectangle(cc_color,cvPoint(largestRect.x,largestRect.y),
+                    cvPoint(largestRect.x+largestRect.width,
+                    largestRect.y+largestRect.height),
+                    CV_RGB(1.0,0.5,0.5),1,8,0);
+		//printf("\nX: %d", largestRect.x);
+	float platformX = -1.0f+(largestRect.x*1.0f/50);
+	platform.moveTo(platformX);
+	frame = cc_color;
+	
+	//cvReleaseImage(&labelImg);
+	//cvReleaseBlobs(blobs);
 	//printf("Analyse!\n");
-	cvThreshold(frame, frame, 0, 150, CV_THRESH_BINARY);
-	labelImg = cvCreateImage(cvGetSize(frame), IPL_DEPTH_LABEL, 1);
+	//cvThreshold(frame, frame, 100, 200, CV_THRESH_BINARY);
+
 	//cvDilate(frame ,frame ,NULL,1);
 	//unsigned int result=cvLabel(frame, labelImg, blobs);
 	
@@ -180,14 +230,14 @@ void analyseCameraFrame()
 	//{
 	//	cout << "Blob #" << it->second->label << ": Centroid = (" << it->second->centroid.x << ", " << it->second->centroid.y << ")" << endl;
 	//}
-	cvSmooth(frame, frame, CV_GAUSSIAN, 5, 5 );
-	CvMemStorage* storage = cvCreateMemStorage(0);
-	CvSeq* results = cvHoughCircles(frame, storage, CV_HOUGH_GRADIENT, 4, frame->width/10);
-	for( int i = 0; i < results->total; i++ ) 
-	{
-		float* p = (float*) cvGetSeqElem( results, i );
-		printf("\nCircle%d: X: %f, Y: %f", i, p[0], p[1]);
-	}
+	//cvSmooth(frame, frame, CV_GAUSSIAN, 5, 5 );
+	//CvMemStorage* storage = cvCreateMemStorage(0);
+	//CvSeq* results = cvHoughCircles(frame, storage, CV_HOUGH_GRADIENT, 4, frame->width/10);
+	//for( int i = 0; i < results->total; i++ ) 
+	//{
+	//	float* p = (float*) cvGetSeqElem( results, i );
+	//	printf("\nCircle%d: X: %f, Y: %f", i, p[0], p[1]);
+	//}
 }
 
 void checkCollisionBall()
@@ -233,8 +283,8 @@ void removeBlock(int x, int y)
 
 void IdleFunc(int value)
 {
-	//updateCameraFrame();
-	//analyseCameraFrame();
+	updateCameraFrame();
+	analyseCameraFrame();
 	bBall.update();
 	platform.update();
 	checkCollisionBall();
@@ -264,7 +314,6 @@ void Keyboard(unsigned char key, int x, int y)
 
 int main(int argc, char* argv[])
 {
-	
 	bBall = BouncingBall(0.0f, 0.0f);
 	platform = Platform(0.0f, -1.0f);
 	fillBlocks();

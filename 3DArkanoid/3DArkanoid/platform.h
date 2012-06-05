@@ -16,6 +16,7 @@ class Platform: public Sprite
 	void Platform:: applyBoost(BouncingBall& ball);
 	void Platform:: moveLeft();
 	void Platform:: moveRight();
+	void Platform:: moveTo(float x2);
 	void Platform:: update();
 	void Platform:: draw();
 };

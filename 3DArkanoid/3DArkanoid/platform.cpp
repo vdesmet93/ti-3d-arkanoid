@@ -29,6 +29,13 @@ void Platform:: moveRight()
 	if(x+w > 1.0f){x = 1.0f-w;}
 }
 
+void Platform:: moveTo(float x2)
+{
+	this->x = x2;
+	if(x < -1.0f){x = -1.0f;}
+	else if(x+w > 1.0f){x = 1.0f-w;}
+}
+
 void Platform:: update()
 {
 	if(timesUpdated%100==0)
