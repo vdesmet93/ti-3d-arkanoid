@@ -1,19 +1,14 @@
 
 #include <stdlib.h>
-#ifdef __GNUC__
-#include <GL/glut.h>
-#include <opencv/highgui.h>
-#else
 #include <glut.h>
-#include "highgui.h"
-#endif
-#include <GL/gl.h>
+#include <gl/GL.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include "bouncingBall.h"
 #include "platform.h"
 #include "block.h"
+#include "highgui.h"
 #include "cvblob.h"
 #include <iostream>
 using namespace cv;
@@ -21,24 +16,24 @@ using namespace cv;
 using namespace std;
 
 
-//Game
+//Game 
 BouncingBall bBall;
 Platform platform;
 float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
 bool grid[10][10];
 Block block;
-vector<vector<vector<Block> > > level;
+vector<vector<vector<Block>>> level;
 
 //OpenCV
 IplImage *frame, *frame2, *cameraFrame; //frame: upper region; frame2: lower region; cameraFrame: camera view
 CvCapture* capture = cvCaptureFromCAM(1);
 float cX, cY;
 CvMemStorage *mem;
-CvSeq *contours, *ptr;
+CvSeq *contours, *ptr; 
 
 //Test
-//IplImage *img, *cc_color;
-
+//IplImage *img, *cc_color; 
+ 
 
 //Texture
 GLuint TEXTURE1 = 10;
@@ -67,7 +62,7 @@ void drawAxes()
 	glVertex3f(0, 0, 0);
 	glVertex3f(0, 0, 1000);
 	glEnd();
-
+	
 	glColor3f(0, 0, 1);
 	glBegin(GL_LINES);
 	glVertex3f(0, 0, 0);
@@ -97,21 +92,21 @@ void drawBlocks()
 
 void Display(void)
 {
-	//Camera
+	//Camera 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear The Screen And The Depth Buffer
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
-
+	
 	//glutSwapBuffers();
 
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear The Screen And The Depth Buffer
 	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	//glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	glLoadIdentity();  
 	gluPerspective(90, 1, 0.1, 600);
-    gluLookAt(1.0f, -1.2f, 1.6f,
-		0.0f, 0.0f,
+    gluLookAt(0.0f, -1.2f, 1.6f, 
+		0.0f, 0.0f, 
 		0.0f, 0.0f, 1.0f, 0.0f);
 	//gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
@@ -128,26 +123,26 @@ void Display(void)
 	//Draw grid
 	for(float x = -1.00f; x < 1.00f; x+=0.1f)
 	{
-		glBegin(GL_LINES);
+		glBegin(GL_LINES); 	
 		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(x, -1.0);
-		glVertex2f(x, 1.0);
-		glEnd();
+		glVertex2f(x, -1.0); 
+		glVertex2f(x, 1.0);  
+		glEnd();  
 	}
 
 	drawAxes();
 	for(float y = -1.00f; y < 1.00f; y+=0.1f)
 	{
-		glBegin(GL_LINES);
+		glBegin(GL_LINES); 	
 		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex2f(-1.0, y);
-		glVertex2f(1.0, y);
-		glEnd();
+		glVertex2f(-1.0, y); 
+		glVertex2f(1.0, y);  
+		glEnd();  
 	}
 	platform.draw();
 	block.draw();
 	bBall.draw();
-
+	
 	drawBlocks();
 
 	glutSwapBuffers();
@@ -160,7 +155,7 @@ void DrawIplImage(IplImage *image)
 	GLfloat xZoom = 1.3333333333f;
 	GLfloat yZoom = 1.3333333333f;
     GLenum format;
-    switch(image->nChannels)
+    switch(image->nChannels) 
 	{
         case 1: format = GL_LUMINANCE; break;
         case 2: format = GL_LUMINANCE_ALPHA; break;
@@ -237,17 +232,17 @@ void updateCameraFrame()
 	cvReleaseImage(&cameraFrame);
 	cvReleaseImage(&frame);
 	cvReleaseImage(&frame2);
-
+	
 	//Get latest camera frame
 	frame = cvQueryFrame( capture );
 	//Make sure that width = height
-	cvSetImageROI(frame, cvRect(0,0,480, 480));
+	cvSetImageROI(frame, cvRect(0,0,480, 480)); 
 	IplImage *frameRegion = cvCreateImage(cvGetSize(frame),
                                frame->depth,
                                frame->nChannels);
 	cvCopy(frame, frameRegion, NULL);
 	cameraFrame = frameRegion;
-
+	
 	//Convert to grayscale
 	IplImage *gray = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 1 );
 	cvCvtColor(frame, gray, CV_RGB2GRAY );
@@ -256,15 +251,15 @@ void updateCameraFrame()
 
 	//Split image in 2
 	//Lower region
-	cvSetImageROI(frame, cvRect(0,0,480, 240));
+	cvSetImageROI(frame, cvRect(0,0,480, 240)); 
 	IplImage *frameRegion2 = cvCreateImage(cvGetSize(frame),
                                frame->depth,
                                frame->nChannels);
 	cvCopy(frame, frameRegion2, NULL);
 	frame2 = frameRegion2;
-
+	
 	//Upper region
-	cvSetImageROI(frame, cvRect(0,240,480, 480));
+	cvSetImageROI(frame, cvRect(0,240,480, 480)); 
 	IplImage *frameRegion3 = cvCreateImage(cvGetSize(frame),
                                frame->depth,
                                frame->nChannels);
@@ -279,7 +274,7 @@ void analyseUpperFrame()
 {
 	IplImage *img = frame;
     IplImage *cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
-
+ 
     cvThreshold(img, img, 100, 200, CV_THRESH_BINARY_INV);
 
     mem = cvCreateMemStorage(0);
@@ -288,7 +283,7 @@ void analyseUpperFrame()
     cvFindContours(img, mem, &contours, sizeof(CvContour), CV_RETR_CCOMP,
         CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
 
-    for (ptr = contours; ptr != NULL; ptr = ptr->h_next)
+    for (ptr = contours; ptr != NULL; ptr = ptr->h_next) 
 	{
         //CvScalar color = CV_RGB( rand()&255, rand()&255, rand()&255 );
         cvDrawContours(cc_color, ptr, CV_RGB(255,0,0), CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
@@ -297,7 +292,7 @@ void analyseUpperFrame()
                     cvPoint(boundingRect.x+boundingRect.width,
                     boundingRect.y+boundingRect.height),
                     CV_RGB(1.0,0.5,0.5),1,8,0);
-
+		
 		//printf("Size: %d", contours->total);
     }
 
@@ -310,7 +305,7 @@ void analyseLowerFrame()
 {
 	IplImage *img = frame2;
     IplImage *cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
-
+ 
     cvThreshold(img, img, 100, 200, CV_THRESH_BINARY_INV);
 
     mem = cvCreateMemStorage(0);
@@ -321,7 +316,7 @@ void analyseLowerFrame()
 
 	int largestArea = 0;
 	Rect largestRect;
-    for (ptr = contours; ptr != NULL; ptr = ptr->h_next)
+    for (ptr = contours; ptr != NULL; ptr = ptr->h_next) 
 	{
         //CvScalar color = CV_RGB( rand()&255, rand()&255, rand()&255 );
         cvDrawContours(cc_color, ptr, CV_RGB(255,0,0), CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
@@ -332,7 +327,7 @@ void analyseLowerFrame()
 			largestArea = currentArea;
 			largestRect = boundingRect;
 		}
-
+		
 		//printf("Size: %d", contours->total);
     }
 	cvRectangle(cc_color,cvPoint(largestRect.x,largestRect.y),
@@ -364,10 +359,27 @@ void checkCollisionBall()
 		}
 	}
 	//blocks check
-	int x = (5.0f*(bBall.getCenterX()+1.0f));
+	for(int x = 0; x < level[x].size(); x++)
+	{
+		for(int z = 0; z < level[x][0].size(); z++)
+		{
+			if(bBall.collide(level[x][0][z]))
+			{
+				removeBlock(x, 0, z);
+			}
+		}
+	}
+
+
+
+
+
+	/*int x = (5.0f*(bBall.getCenterX()+1.0f));
 	int y = (5.0f*(bBall.getCenterY()+1.0f));
 
 	cout << x << " " << y << endl;
+
+
 
 	if(bBall.intersects(level[x][y+1][0]))
 	{
@@ -388,11 +400,12 @@ void checkCollisionBall()
 	{
 		bBall.collide(level[x][y-1][0]);
 		removeBlock(x, y-1, 0);
-	}
+	}*/
 }
 
 void IdleFunc(int value)
 {
+	printf("idling\n");
 	//updateCameraFrame();
 	//analyseCameraFrame();
 	bBall.update();
@@ -405,7 +418,8 @@ void IdleFunc(int value)
 }
 
 void Idle() {
-	IdleFunc(0);
+	
+	//IdleFunc(0);
 }
 void Keyboard(unsigned char key, int x, int y)
 {
@@ -419,6 +433,7 @@ void Keyboard(unsigned char key, int x, int y)
 		//case 'q': xLook-=0.1f; printf("X: %f", xLook); break;
 		//case 'w': yLook-=0.1f; printf("Y: %f", yLook); break;
 		//case 'e': zLook-=0.1f; printf("Z: %f", zLook); break;
+		case 'i' : IdleFunc(0); break;
 	}
 }
 
@@ -446,4 +461,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-

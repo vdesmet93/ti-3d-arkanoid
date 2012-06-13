@@ -39,6 +39,8 @@ void BouncingBall:: bounceBack()
 
 bool BouncingBall::collide(const Sprite& anotherSprite)
 {
+	printf("%0.3f %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f \n",x, y, w, h, anotherSprite.getX(), anotherSprite.getY(), anotherSprite.getW(), anotherSprite.getH());
+
 	bool boost = false;
 	bool left = false, right = false, down = false, up = false;
 	//Check left side
