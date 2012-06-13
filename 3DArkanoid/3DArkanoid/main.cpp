@@ -25,14 +25,14 @@ Block blocks[10][10];
 Block block;
 
 //OpenCV
-IplImage *frame, *labelImg;
+IplImage *frame, *frame2, *cameraFrame; //frame: upper region; frame2: lower region; cameraFrame: camera view
 CvCapture* capture = cvCaptureFromCAM(1);
 float cX, cY;
 CvMemStorage *mem;
 CvSeq *contours, *ptr; 
 
 //Test
-IplImage *img, *cc_color; /*IplImage is an image in OpenCV*/
+//IplImage *img, *cc_color; 
  
 
 //Texture
@@ -46,6 +46,8 @@ void DrawIplImage(IplImage *image);
 void fillBlocks();
 void checkCollisionBall();
 void removeBlock(int x, int y);
+void analyseUpperFrame();
+void analyseLowerFrame();
 
 void Display(void)
 {
@@ -67,7 +69,12 @@ void Display(void)
 	glLoadIdentity();
 	if( frame )
 	{
-		DrawIplImage(frame);
+		//glPushMatrix();
+		//glTranslatef(0.0f, 1.0f, 0.0f);
+		//DrawIplImage(frame);
+		//glPopMatrix();
+		//DrawIplImage(frame2);
+		DrawIplImage(cameraFrame);
 	}
 	//Draw grid
 	for(float x = -1.00f; x < 1.00f; x+=0.1f)
@@ -106,8 +113,8 @@ void DrawIplImage(IplImage *image)
 {
 	float x = -1.0f;
 	float y = -1.0f;
-	GLfloat xZoom = 2.0f;
-	GLfloat yZoom = 2.0f;
+	GLfloat xZoom = 1.3333333333f;
+	GLfloat yZoom = 1.3333333333f;
     GLenum format;
     switch(image->nChannels) 
 	{
@@ -163,30 +170,85 @@ void MouseMotion(int x, int y)
 
 void updateCameraFrame()
 {
+	cvReleaseImage(&cameraFrame);
 	cvReleaseImage(&frame);
+	cvReleaseImage(&frame2);
+	
 	//Get latest camera frame
 	frame = cvQueryFrame( capture );
 	//Make sure that width = height
 	cvSetImageROI(frame, cvRect(0,0,480, 480)); 
-	IplImage *frame2 = cvCreateImage(cvGetSize(frame),
+	IplImage *frameRegion = cvCreateImage(cvGetSize(frame),
                                frame->depth,
                                frame->nChannels);
-	cvCopy(frame, frame2, NULL);
-	frame = frame2;
-	//printf("\n%dx%d", frame->width, frame->height);
+	cvCopy(frame, frameRegion, NULL);
+	cameraFrame = frameRegion;
+	
 	//Convert to grayscale
 	IplImage *gray = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 1 );
 	cvCvtColor(frame, gray, CV_RGB2GRAY );
 	//Original frame = grayscale version
 	frame = gray;
+
+	//Split image in 2
+	//Lower region
+	cvSetImageROI(frame, cvRect(0,0,480, 240)); 
+	IplImage *frameRegion2 = cvCreateImage(cvGetSize(frame),
+                               frame->depth,
+                               frame->nChannels);
+	cvCopy(frame, frameRegion2, NULL);
+	frame2 = frameRegion2;
+	
+	//Upper region
+	cvSetImageROI(frame, cvRect(0,240,480, 480)); 
+	IplImage *frameRegion3 = cvCreateImage(cvGetSize(frame),
+                               frame->depth,
+                               frame->nChannels);
+	cvCopy(frame, frameRegion3, NULL);
+	frame = frameRegion3;
+
+	//cvReleaseImage(&gray);
+	//printf("\n%dx%d", frame->width, frame->height);printf("\n%dx%d", frame->width, frame->height);
 }
 
-void analyseCameraFrame()
+void analyseUpperFrame()
 {
-	img = frame;
-    cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
+	IplImage *img = frame;
+    IplImage *cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
  
     cvThreshold(img, img, 100, 200, CV_THRESH_BINARY_INV);
+
+    mem = cvCreateMemStorage(0);
+
+
+    cvFindContours(img, mem, &contours, sizeof(CvContour), CV_RETR_CCOMP,
+        CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
+
+    for (ptr = contours; ptr != NULL; ptr = ptr->h_next) 
+	{
+        //CvScalar color = CV_RGB( rand()&255, rand()&255, rand()&255 );
+        cvDrawContours(cc_color, ptr, CV_RGB(255,0,0), CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
+		Rect boundingRect = cvBoundingRect(ptr,0);
+			cvRectangle(cc_color,cvPoint(boundingRect.x,boundingRect.y),
+                    cvPoint(boundingRect.x+boundingRect.width,
+                    boundingRect.y+boundingRect.height),
+                    CV_RGB(1.0,0.5,0.5),1,8,0);
+		
+		//printf("Size: %d", contours->total);
+    }
+
+	frame = cc_color;
+	cvReleaseImage(&img);
+	cvReleaseMemStorage(&mem);
+}
+
+void analyseLowerFrame()
+{
+	IplImage *img = frame2;
+    IplImage *cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
+ 
+    cvThreshold(img, img, 100, 200, CV_THRESH_BINARY_INV);
+
     mem = cvCreateMemStorage(0);
 
 
@@ -214,30 +276,17 @@ void analyseCameraFrame()
                     largestRect.y+largestRect.height),
                     CV_RGB(1.0,0.5,0.5),1,8,0);
 		//printf("\nX: %d", largestRect.x);
-	float platformX = -1.0f+(largestRect.x*1.0f/50);
+	float platformX = -1.0f+(largestRect.x*1.0f/240);
 	platform.moveTo(platformX);
-	frame = cc_color;
-	
-	//cvReleaseImage(&labelImg);
-	//cvReleaseBlobs(blobs);
-	//printf("Analyse!\n");
-	//cvThreshold(frame, frame, 100, 200, CV_THRESH_BINARY);
+	frame2 = cc_color;
+	cvReleaseImage(&img);
+	cvReleaseMemStorage(&mem);
+}
 
-	//cvDilate(frame ,frame ,NULL,1);
-	//unsigned int result=cvLabel(frame, labelImg, blobs);
-	
-	//for (CvBlobs::const_iterator it=blobs.begin(); it!=blobs.end(); ++it)
-	//{
-	//	cout << "Blob #" << it->second->label << ": Centroid = (" << it->second->centroid.x << ", " << it->second->centroid.y << ")" << endl;
-	//}
-	//cvSmooth(frame, frame, CV_GAUSSIAN, 5, 5 );
-	//CvMemStorage* storage = cvCreateMemStorage(0);
-	//CvSeq* results = cvHoughCircles(frame, storage, CV_HOUGH_GRADIENT, 4, frame->width/10);
-	//for( int i = 0; i < results->total; i++ ) 
-	//{
-	//	float* p = (float*) cvGetSeqElem( results, i );
-	//	printf("\nCircle%d: X: %f, Y: %f", i, p[0], p[1]);
-	//}
+void analyseCameraFrame()
+{
+	analyseLowerFrame();
+	analyseUpperFrame();
 }
 
 void checkCollisionBall()
