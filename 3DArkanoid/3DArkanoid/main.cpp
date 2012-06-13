@@ -23,6 +23,7 @@ float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
 bool grid[10][10];
 Block blocks[10][10];
 Block block;
+vector<vector<vector<Block>>> level;
 
 //OpenCV
 IplImage *frame, *frame2, *cameraFrame; //frame: upper region; frame2: lower region; cameraFrame: camera view
@@ -150,6 +151,59 @@ void fillBlocks()
 			}
 		}
 	}
+}
+
+void generateDefaultLevel()
+{
+	int cntr = 5;
+	level.resize(10);
+	for(int x = 0; x < 10; x++)
+	{
+		level[x].resize(5);
+		cntr = 5;
+		for(int y = 0; y < 5; y++)
+		{
+			level[x][y].resize(cntr);
+			for(int z = 0; z < cntr; z++)
+			{
+				level[x][y][z].setColor((x == 0) ? 1 : 1/x, (y == 0) ? 1 : 1/y, (z == 0) ? 1 : 1/z);
+			}
+			cntr--;
+		}
+	}
+	cout << "yay" << endl;
+}
+
+void drawBlocks()
+{
+	for(int x = 0; x < level.size(); x++)
+	{
+		for(int y = 0; y < level[x].size(); y++)
+		{
+			for(int z= 0; z < level[x][y].size(); z++)
+			{
+				if(level[x][y][z].isEnabled())
+				{
+					level[x][y][z].draw(x*5, y*5,z*5, 5, 5, 5);
+				}
+			}
+		}
+	}
+}
+
+void switchBlocksDownAbove(int x, int y, int z)
+{
+	for(int idx = y; idx < level[x][y].size()-1; idx++)
+	{
+		level[x][idx][z] = level[x][idx+1][z];
+		level[x][idx+1][z].disable();
+	}
+}
+
+void removeBlocks(int x, int y, int z)
+{
+	level[x][y][z].disable();
+	switchBlocksDownAbove(x, y, z);
 }
 
 void Reshape(GLint width, GLint height)

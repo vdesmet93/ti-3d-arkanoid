@@ -1,7 +1,7 @@
 #include "block.h"
 #include "stdio.h"
 
-Block::Block(){}
+Block::Block(void){}
 
 Block::Block(float x, float y, float z, float w, float h, float d): Sprite(x, y, z, w, h, d)
 {
@@ -20,7 +20,7 @@ void Block:: update()
 
 }
 
-void Block:: draw()
+void Block:: draw(float x, float y, float z, float w, float h, float d)
 {
 	glBegin(GL_QUADS);
 
@@ -59,4 +59,19 @@ void Block:: draw()
 	glVertex3f(x+w, y+h, z+d);
 
 	glEnd();
+}
+
+bool Block:: isEnabled()
+{
+	return this -> enabled;
+}
+
+void Block:: enable()
+{
+	this->enabled = true;
+}
+
+void Block:: disable()
+{
+	this->enabled = false;
 }
