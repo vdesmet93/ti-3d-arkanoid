@@ -10,7 +10,7 @@ Block::Block(void): Sprite()
 
 Block::Block(float x, float y, float z, float w, float h, float d): Sprite(x, y, z, w, h, d)
 {
-	
+
 }
 
 void Block:: setColor(float red, float green, float blue)

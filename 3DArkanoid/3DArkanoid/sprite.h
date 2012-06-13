@@ -1,14 +1,19 @@
 #ifndef SPRITE_H
 #define SPRITE_H
+#ifndef __GNUC__
 #include <glut.h>
 #include <gl/GL.h>
+#else
+#include <GL/glut.h>
+#include <GL/gl.h>
+#endif
 #define _USE_MATH_DEFINES
 #include <math.h>
 
 class Sprite
 {
 	protected:
-	float x, y, z, w, h, d; 
+	float x, y, z, w, h, d;
 
 	public:
 	Sprite::Sprite();
