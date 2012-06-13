@@ -21,7 +21,6 @@ BouncingBall bBall;
 Platform platform;
 float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
 bool grid[10][10];
-Block blocks[10][10];
 Block block;
 vector<vector<vector<Block>>> level;
 
@@ -50,6 +49,47 @@ void removeBlock(int x, int y);
 void analyseUpperFrame();
 void analyseLowerFrame();
 
+void drawAxes()
+{
+	glColor3f(0, 1, 0);
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, 0);
+	glVertex3f(1000, 0, 0);
+	glEnd();
+
+	glColor3f(1, 1, 0);
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 0, 1000);
+	glEnd();
+	
+	glColor3f(0, 0, 1);
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 1000, 0);
+	glEnd();
+
+}
+
+void drawBlocks()
+{
+	for(int x = 0; x < level.size(); x++)
+	{
+		for(int y = 0; y < level[x].size(); y++)
+		{
+			for(int z= 0; z < level[x][y].size(); z++)
+			{
+				if(level[x][y][z].isEnabled())
+				{
+					float x2= 0.1*x-0.1*level[x].size();
+					float y2 = 0.1*y+0.4;
+					level[x][y][z].draw(x2, y2, z*0.1, 0.2, 0.2, 0.2);
+				}
+			}
+		}
+	}
+}
+
 void Display(void)
 {
 	//Camera 
@@ -64,8 +104,11 @@ void Display(void)
 	//glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();  
-    //gluLookAt(0.0f, 0.2f, 0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
+	gluPerspective(90, 1, 0.1, 600);
+    gluLookAt(1.0f, -1.2f, 1.6f, 
+		0.0f, 0.0f, 
+		0.0f, 0.0f, 1.0f, 0.0f);
+	//gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	if( frame )
@@ -75,7 +118,7 @@ void Display(void)
 		//DrawIplImage(frame);
 		//glPopMatrix();
 		//DrawIplImage(frame2);
-		DrawIplImage(cameraFrame);
+		//DrawIplImage(cameraFrame);
 	}
 	//Draw grid
 	for(float x = -1.00f; x < 1.00f; x+=0.1f)
@@ -86,6 +129,8 @@ void Display(void)
 		glVertex2f(x, 1.0);  
 		glEnd();  
 	}
+
+	drawAxes();
 	for(float y = -1.00f; y < 1.00f; y+=0.1f)
 	{
 		glBegin(GL_LINES); 	
@@ -97,16 +142,9 @@ void Display(void)
 	platform.draw();
 	block.draw();
 	bBall.draw();
-	for(int x = 0; x < 10; x++)
-	{
-		for(int y = 0; y < 10; y++)
-		{
-			if(grid[x][y])
-			{
-				blocks[x][y].draw();
-			}
-		}
-	}
+	
+	drawBlocks();
+
 	glutSwapBuffers();
 }
 
@@ -131,28 +169,6 @@ void DrawIplImage(IplImage *image)
 	glPopMatrix();
 }
 
-void fillBlocks()
-{
-	for(int x = 0; x < 10; x++)
-	{
-		for(int y = 7; y < 10; y++)
-		{
-			float x2 = -1.0f+(x*1.0f/5);
-			float y2 = -1.0f+(y*1.0f/5);
-			grid[x][y] = true;
-			blocks[x][y] = Block(x2, y2, 0.0f, 0.2f, 0.1f, 0.2f);
-			if(x%2==0)
-			{
-				blocks[x][y].setColor(0.6f, 0.5f, 0.1f);
-			}
-			else
-			{
-				blocks[x][y].setColor(0.1f, 0.3f, 0.5f);
-			}
-		}
-	}
-}
-
 void generateDefaultLevel()
 {
 	int cntr = 5;
@@ -160,35 +176,23 @@ void generateDefaultLevel()
 	for(int x = 0; x < 10; x++)
 	{
 		level[x].resize(5);
-		cntr = 5;
+		cntr = 1;
 		for(int y = 0; y < 5; y++)
 		{
 			level[x][y].resize(cntr);
 			for(int z = 0; z < cntr; z++)
 			{
-				level[x][y][z].setColor((x == 0) ? 1 : 1/x, (y == 0) ? 1 : 1/y, (z == 0) ? 1 : 1/z);
+				float x2= 0.1*x-0.1*level[x].size();
+				float y2 = 0.1*y+0.4;
+				level[x][y][z].setCoordinates(x2, y2, z*0.1);
+				level[x][y][z].setDimensions(0.2f, 0.2f, 0.2f);
+				level[x][y][z].setColor(1.0, 1.0, 1.0);
+				grid[x][y] = true;
 			}
-			cntr--;
+			cntr++;
 		}
 	}
 	cout << "yay" << endl;
-}
-
-void drawBlocks()
-{
-	for(int x = 0; x < level.size(); x++)
-	{
-		for(int y = 0; y < level[x].size(); y++)
-		{
-			for(int z= 0; z < level[x][y].size(); z++)
-			{
-				if(level[x][y][z].isEnabled())
-				{
-					level[x][y][z].draw(x*5, y*5,z*5, 5, 5, 5);
-				}
-			}
-		}
-	}
 }
 
 void switchBlocksDownAbove(int x, int y, int z)
@@ -200,9 +204,10 @@ void switchBlocksDownAbove(int x, int y, int z)
 	}
 }
 
-void removeBlocks(int x, int y, int z)
+void removeBlock(int x, int y, int z)
 {
 	level[x][y][z].disable();
+	grid[x][y] = 0;
 	switchBlocksDownAbove(x, y, z);
 }
 
@@ -356,38 +361,35 @@ void checkCollisionBall()
 	//blocks check
 	int x = (5.0f*(bBall.getCenterX()+1.0f));
 	int y = (5.0f*(bBall.getCenterY()+1.0f));
-	if(grid[x][y+1] && bBall.intersects(blocks[x][y+1]))
-	{
-		bBall.collide(blocks[x][y+1]);
-		removeBlock(x, y+1);
-	}
-	else if(grid[x+1][y] && bBall.intersects(blocks[x+1][y]))
-	{
-		bBall.collide(blocks[x+1][y]);
-		removeBlock(x+1, y);
-	}
-	else if(grid[x-1][y] && bBall.intersects(blocks[x-1][y]))
-	{
-		bBall.collide(blocks[x-1][y]);
-		removeBlock(x-1, y);
-	}
-	else if(grid[x][y-1] && bBall.intersects(blocks[x][y-1]))
-	{
-		bBall.collide(blocks[x][y-1]);
-		removeBlock(x, y-1);
-	}
-}
 
-void removeBlock(int x, int y)
-{
-	grid[x][y] = 0;
-	blocks[x][y] = Block();
+	cout << x << " " << y << endl;
+
+	if(bBall.intersects(level[x][y+1][0]))
+	{
+		bBall.collide(level[x][y+1][0]);
+		removeBlock(x, y+1, 0);
+	}
+	else if(bBall.intersects(level[x+1][y][0]))
+	{
+		bBall.collide(level[x+1][y][0]);
+		removeBlock(x+1, y, 0);
+	}
+	else if(bBall.intersects(level[x-1][y][0]))
+	{
+		bBall.collide(level[x-1][y][0]);
+		removeBlock(x-1, y, 0);
+	}
+	else if(bBall.intersects(level[x][y-1][0]))
+	{
+		bBall.collide(level[x][y-1][0]);
+		removeBlock(x, y-1, 0);
+	}
 }
 
 void IdleFunc(int value)
 {
-	updateCameraFrame();
-	analyseCameraFrame();
+	//updateCameraFrame();
+	//analyseCameraFrame();
 	bBall.update();
 	platform.update();
 	checkCollisionBall();
@@ -419,7 +421,7 @@ int main(int argc, char* argv[])
 {
 	bBall = BouncingBall(0.0f, 0.0f);
 	platform = Platform(0.0f, -1.0f);
-	fillBlocks();
+	generateDefaultLevel();
 
 	glutInit (&argc, argv);
 	glutInitWindowSize (640, 640);
