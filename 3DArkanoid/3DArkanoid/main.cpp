@@ -1,14 +1,19 @@
 
 #include <stdlib.h>
-#include <glut.h>
-#include <gl/GL.h>
+#ifdef __GNUC__
+#include <GL/glut.h>
+#include <opencv/highgui.h>
+#else#include <glut.h>
+#include "highgui.h"
+#endif
+#include <GL/gl.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include "bouncingBall.h"
 #include "platform.h"
 #include "block.h"
-#include "highgui.h"
+
 #include "cvblob.h"
 #include <iostream>
 using namespace cv;
@@ -22,7 +27,7 @@ Platform platform;
 float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
 bool grid[10][10];
 Block block;
-vector<vector<vector<Block>>> level;
+vector<vector<vector<Block> > > level;
 
 //OpenCV
 IplImage *frame, *frame2, *cameraFrame; //frame: upper region; frame2: lower region; cameraFrame: camera view
