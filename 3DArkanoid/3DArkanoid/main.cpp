@@ -12,6 +12,7 @@
 #include "cvblob.h"
 #include <iostream>
 #include "texture.h"
+#include <mmsystem.h>
 using namespace cv;
 //using namespace cvb;
 using namespace std;
@@ -32,7 +33,9 @@ float cX, cY;
 CvMemStorage *mem;
 CvSeq *contours, *ptr; 
 
-int score = 0;
+int score = 0, lives = 3;
+bool ballLost = false;
+int respawnTime = 0;
 
 //Test
 //IplImage *img, *cc_color;
@@ -113,6 +116,9 @@ void drawScore()
 	char buf[20];
 	sprintf(buf, "Score: %i", score);
 	string scoreString = buf;
+	char buf2[20];
+	sprintf(buf2, "Lives: %i", lives);
+	string livesString = buf2;
 
 	glDisable(GL_COLOR_MATERIAL);
 	glDisable(GL_LIGHTING);
@@ -131,6 +137,11 @@ void drawScore()
 	for(int i = 0; i < scoreString.length(); i++)
 	{
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, scoreString[i]);
+	}
+	glRasterPos2f(0.8, -1);
+	for(int i = 0; i < livesString.length(); i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, livesString[i]);
 	}
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glPopMatrix ();
@@ -467,6 +478,21 @@ void checkCollisionBall()
 		if(bBall.collide(platform))
 		{
 			platform.applyBoost(bBall);
+			char* wpurl = "ballBounce.wav";
+
+			int len = strlen(wpurl)+1;
+			  wchar_t *wText = new wchar_t[len];
+		      if ( wText == 0 )
+		      return;
+		      memset(wText,0,len);
+              ::MultiByteToWideChar(  CP_ACP, NULL,wpurl, -1, wText,len );
+
+              //now pass wText
+			 PlaySound(wText, NULL, SND_ASYNC);
+
+  
+			// when finish using wText dont forget to delete it
+			delete []wText;
 		}
 	}
 	//blocks check
@@ -477,9 +503,24 @@ void checkCollisionBall()
 			if(bBall.intersects(level[x][y][0]) && level[x][y][0].isEnabled())
 			{
 				if(bBall.collide(level[x][y][0]))
-				{
+				{char* wpurl = "blockDestroy.wav";
+
+			int len = strlen(wpurl)+1;
+			  wchar_t *wText = new wchar_t[len];
+		      if ( wText == 0 )
+		      return;
+		      memset(wText,0,len);
+              ::MultiByteToWideChar(  CP_ACP, NULL,wpurl, -1, wText,len );
+
+              //now pass wText
+			 PlaySound(wText, NULL, SND_ASYNC);
+
+  
+			// when finish using wText dont forget to delete it
+			delete []wText;
+
 					removeBlock(x, y, 0);
-					score++;
+					score+=100;
 				}
 			}
 		}
@@ -491,9 +532,36 @@ void IdleFunc(int value)
 	updateCameraFrame();
 	analyseCameraFrame();
 	bBall.update();
+	if(bBall.getY() < -1.0f)
+	{
+		if(!ballLost)
+		{
+			ballLost=true; 
+			lives--;
+		}
+	}
 	platform.update();
-	checkCollisionBall();
-
+	if(!ballLost)
+	{
+		checkCollisionBall();
+	}
+	else
+	{
+		respawnTime++;
+		if(respawnTime == 100)
+		{
+			respawnTime = 0;
+			ballLost = false;
+			if(lives==0)
+			{
+				level.clear();
+				generateDefaultLevel();
+				score = 0;
+				lives = 3;
+			}
+			bBall = BouncingBall(0.0f, -0.25f);
+		}
+	}
 	glutPostRedisplay();
 	glutTimerFunc(10, IdleFunc, 0);
 }
@@ -507,14 +575,14 @@ void Keyboard(unsigned char key, int x, int y)
 	{
 		case 'd': platform.moveLeft(); break;
 		case 'l': platform.moveRight(); break;
-		case 'z': xLook+=0.1f; printf("\nX: %f", xLook); break;
-		case 'x': yLook+=0.1f; printf("\nY: %f", yLook); break;
-		case 'c': zLook+=0.1f; printf("\nZ: %f", zLook); break;
-		case 'q': xLook-=0.1f; printf("\nX: %f", xLook); break;
-		case 'w': yLook-=0.1f; printf("\nY: %f", yLook); break;
-		case 'e': zLook-=0.1f; printf("\nZ: %f", zLook); break;
-		case 'v': yFar+=0.1f; printf("\nYFar: %f", yFar); break;
-		case 'b': yFar-=0.1f; printf("\nYFar: %f", yFar); break;
+		//case 'z': xLook+=0.1f; printf("\nX: %f", xLook); break;
+		//case 'x': yLook+=0.1f; printf("\nY: %f", yLook); break;
+		//case 'c': zLook+=0.1f; printf("\nZ: %f", zLook); break;
+		//case 'q': xLook-=0.1f; printf("\nX: %f", xLook); break;
+		//case 'w': yLook-=0.1f; printf("\nY: %f", yLook); break;
+		//case 'e': zLook-=0.1f; printf("\nZ: %f", zLook); break;
+		//case 'v': yFar+=0.1f; printf("\nYFar: %f", yFar); break;
+		//case 'b': yFar-=0.1f; printf("\nYFar: %f", yFar); break;
 	}
 }
 

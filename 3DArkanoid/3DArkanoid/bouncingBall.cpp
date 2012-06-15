@@ -6,8 +6,8 @@ BouncingBall::BouncingBall(){}
 
 BouncingBall::BouncingBall(float x, float y): Sprite(x, y)
 {
-	this->speedX = 0.025f;
-	this->speedY = 0.030f;
+	this->speedX = 0.028f;
+	this->speedY = 0.036f;
 	this->radius = 0.05f;
 	this->w = 0.1f;
 	this->h = 0.1f;
@@ -22,13 +22,16 @@ void BouncingBall:: move()
 	if(x+w > 1.0f){x = 1.0f-w; speedX=-speedX;}
 	else if(x < -1.0f){x = -1.0f; speedX=-speedX;}
 	if(y+h > 1.0f){y = 1.0f-h; speedY=-speedY;}
-	else if(y < -1.0f){y = -1.0f; speedY=-speedY;}
+	//else if(y < -1.0f){y = -1.0f; speedY=-speedY;}
 }
 
 void BouncingBall:: applyBoost(float amount)
 {
-	this->speedX += amount;
-	move();
+	if(amount >= -0.1f && amount <= 0.1f)
+	{
+		this->speedX += amount;
+		move();
+	}
 }
 
 void BouncingBall:: bounceBack()

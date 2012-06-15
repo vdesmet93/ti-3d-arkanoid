@@ -25,10 +25,11 @@ void Block:: update()
 
 void Block:: draw()
 {
+
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 
-	glColor3f(red, green, blue);
+	glColor3f(1.0f, 0.0f, 0.0f);
 	//back
 	glTexCoord2f(0,0); glVertex3f(x, y, z);
 	glTexCoord2f(0,1); glVertex3f(x, y+h, z);
