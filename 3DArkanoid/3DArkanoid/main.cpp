@@ -68,7 +68,7 @@ void initTexture(IplImage* frameImg)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);   
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
  
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
    glTexImage2D(GL_TEXTURE_2D, 0, 3,textImg->width, textImg->height,0,
        GL_BGR_EXT,GL_UNSIGNED_BYTE, textImg->imageData);
  
@@ -125,13 +125,14 @@ void drawScore()
 	glPushMatrix ();
 	glLoadIdentity();
 
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3f(1.0f, 0.0f, 0.0f);
 	glRasterPos2f(-1, -1);
 	
 	for(int i = 0; i < scoreString.length(); i++)
 	{
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, scoreString[i]);
 	}
+	glColor3f(1.0f, 1.0f, 1.0f);
 	glPopMatrix ();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix ();
@@ -186,7 +187,7 @@ void Display(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();  
 	gluPerspective(90, 1, 0.1, 600);
-    gluLookAt(0.0, -0.7, 1.2, 
+    gluLookAt(0.0, -0.6f, 1.2, 
 		0.0f, 0.0f, 
 		0.0f, 0.0f, 1.0f, 0.0f);
 	//gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
@@ -291,7 +292,7 @@ void generateDefaultLevel()
 			for(int z = 0; z < cntr; z++)
 			{
 				float x2= size*x-size*level[x].size();
-				float y2 = size*y+0.4;
+				float y2 = size*y;
 				level[x][y][z].setCoordinates(x2, y2, z*size);
 				level[x][y][z].setDimensions(size,size, size);
 				level[x][y][z].setColor(1.0, 1.0, 1.0);
