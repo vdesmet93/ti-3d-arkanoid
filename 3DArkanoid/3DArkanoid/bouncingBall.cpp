@@ -27,7 +27,10 @@ void BouncingBall:: move()
 
 void BouncingBall:: applyBoost(float amount)
 {
-	this->speedX += amount;
+        if (this->speedX < 0)
+                this->speedX -= amount;
+        else
+                this->speedX += amount;
 	move();
 }
 
@@ -101,7 +104,7 @@ void BouncingBall:: update()
 void BouncingBall:: draw()
 {
 	glColor3f(0.7f, 0.7f, 0.7f);
-	
+
 	GLUquadricObj* sphere = gluNewQuadric();
 	glPushMatrix();
 	glTranslatef(x+(w/2), y+(h/2), z+(d/2));
