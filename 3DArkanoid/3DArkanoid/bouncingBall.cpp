@@ -6,8 +6,8 @@ BouncingBall::BouncingBall(){}
 
 BouncingBall::BouncingBall(float x, float y): Sprite(x, y)
 {
-	this->speedX = 0.010f;
-	this->speedY = 0.016f;
+	this->speedX = 0.025f;
+	this->speedY = 0.030f;
 	this->radius = 0.05f;
 	this->w = 0.1f;
 	this->h = 0.1f;
@@ -27,10 +27,7 @@ void BouncingBall:: move()
 
 void BouncingBall:: applyBoost(float amount)
 {
-        if (this->speedX < 0)
-                this->speedX -= amount;
-        else
-                this->speedX += amount;
+	this->speedX += amount;
 	move();
 }
 
@@ -42,8 +39,6 @@ void BouncingBall:: bounceBack()
 
 bool BouncingBall::collide(const Sprite& anotherSprite)
 {
-	printf("%0.3f %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f \n",x, y, w, h, anotherSprite.getX(), anotherSprite.getY(), anotherSprite.getW(), anotherSprite.getH());
-
 	bool boost = false;
 	bool left = false, right = false, down = false, up = false;
 	//Check left side
@@ -104,7 +99,7 @@ void BouncingBall:: update()
 void BouncingBall:: draw()
 {
 	glColor3f(0.7f, 0.7f, 0.7f);
-
+	
 	GLUquadricObj* sphere = gluNewQuadric();
 	glPushMatrix();
 	glTranslatef(x+(w/2), y+(h/2), z+(d/2));

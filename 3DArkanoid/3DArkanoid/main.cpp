@@ -1,45 +1,40 @@
 
 #include <stdlib.h>
-#ifdef __GNUC__
-#include <GL/glut.h>
-#include <GL/gl.h>
-#include <opencv/highgui.h>
-#else
 #include <glut.h>
 #include <gl/GL.h>
-#include "highgui.h"
-#endif
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include "bouncingBall.h"
 #include "platform.h"
 #include "block.h"
+#include "highgui.h"
 #include "cvblob.h"
 #include <iostream>
+#include "texture.h"
 using namespace cv;
 //using namespace cvb;
 using namespace std;
 
+unsigned int textures[] = {0, 1};
 
-//Game
+//Game 
 BouncingBall bBall;
 Platform platform;
-float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
+float xLook =0.0f, yLook = 0.0f, zLook =0.0f, yFar;
 bool grid[10][10];
-Block block;
-vector<vector<vector<Block> > > level;
+vector<vector<vector<Block>>> level;
 
 //OpenCV
 IplImage *frame, *frame2, *cameraFrame; //frame: upper region; frame2: lower region; cameraFrame: camera view
 CvCapture* capture = cvCaptureFromCAM(1);
 float cX, cY;
 CvMemStorage *mem;
-CvSeq *contours, *ptr;
+CvSeq *contours, *ptr; 
 
 //Test
 //IplImage *img, *cc_color;
-
+bool cameraTextureLoaded = false;
 
 //Texture
 GLuint TEXTURE1 = 10;
@@ -54,6 +49,41 @@ void checkCollisionBall();
 void removeBlock(int x, int y);
 void analyseUpperFrame();
 void analyseLowerFrame();
+void setLight(void);
+
+void initTexture(IplImage* frameImg)
+{
+
+ IplImage *textImg = cvCreateImage(cvSize(512,256), frameImg->depth, frameImg->nChannels);
+ cvResize(frameImg, textImg);
+    //cvFlip(textImg, NULL, 0);
+ 
+	glGenTextures(1, &TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, TEXTURE1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);   
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+ 
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3,textImg->width, textImg->height,0,
+       GL_BGR_EXT,GL_UNSIGNED_BYTE, textImg->imageData);
+ 
+    cvReleaseImage(&textImg);
+ 
+}
+
+void updateTexture(IplImage* frameImg)
+{
+	IplImage *textImg = cvCreateImage(cvSize(512,256), frameImg->depth, frameImg->nChannels);
+	cvResize(frameImg, textImg);
+
+	glBindTexture(GL_TEXTURE_2D, TEXTURE1);    //A texture you have already created with glTexImage2D
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, textImg->width, textImg->height, GL_BGR_EXT, GL_UNSIGNED_BYTE, textImg->imageData);
+
+	cvReleaseImage(&textImg);
+}
 
 void drawAxes()
 {
@@ -68,7 +98,7 @@ void drawAxes()
 	glVertex3f(0, 0, 0);
 	glVertex3f(0, 0, 1000);
 	glEnd();
-
+	
 	glColor3f(0, 0, 1);
 	glBegin(GL_LINES);
 	glVertex3f(0, 0, 0);
@@ -96,59 +126,96 @@ void drawBlocks()
 
 void Display(void)
 {
-	//Camera
+	//Camera 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear The Screen And The Depth Buffer
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
+	
+	setLight();
+	//glEnable (GL_DEPTH_TEST); //enable the depth testing
+ //   glEnable (GL_LIGHTING); //enable the lighting
+	//glEnable (GL_COLOR_MATERIAL);
+	//glEnable (GL_LIGHT0); //enable LIGHT0, our Diffuse Light
+	//GLfloat LightAmbient[]  = {0.5f, 0.5f, 0.5f, 1.0f};  
+	//GLfloat LightDiffuse[]  = {1.0f, 1.0f, 1.0f, 1.0f};  
+	//GLfloat LightPosition[] = {0.0f, 1.0f, 1.0f, 1.0f};  
+	//glLightfv(GL_LIGHT0, GL_POSITION,  LightAmbient);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT,  LightDiffuse);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE,  LightPosition);
+
+ //   glShadeModel (GL_SMOOTH); //set the shader to smooth shader
 
 	//glutSwapBuffers();
 
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear The Screen And The Depth Buffer
 	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	//glEnable(GL_DEPTH_TEST);
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();  
+    //gluLookAt(0.0f, -0.1f, 0.2f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	glLoadIdentity();  
 	gluPerspective(90, 1, 0.1, 600);
-    gluLookAt(0.0f, -1.2f, 1.6f,
-		0.0f, 0.0f,
+    gluLookAt(0.0, -0.7, 1.2, 
+		0.0f, 0.0f, 
 		0.0f, 0.0f, 1.0f, 0.0f);
 	//gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	if( frame )
 	{
-		glPushMatrix();
-		glTranslatef(0.0f, 1.0f, 0.0f);
-		DrawIplImage(frame);
-		glPopMatrix();
-		DrawIplImage(frame2);
-		DrawIplImage(cameraFrame);
+		//glPushMatrix();
+		//glTranslatef(0.0f, 1.0f, 0.0f);
+		//DrawIplImage(frame);
+		//glPopMatrix();
+		//DrawIplImage(frame2);
+		
+		glEnable(GL_TEXTURE_2D);
+		if(!cameraTextureLoaded)
+		{
+			initTexture(cameraFrame);
+			cameraTextureLoaded++;
+		}
+		else
+		{
+			updateTexture(cameraFrame);
+		}
+		//glColor3f(1.0f, 0.0f, 1.0f);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0,0); glVertex3f(-1.0f, -1.0f, 0.0f);
+		glTexCoord2f(0,1); glVertex3f(-1.0f, 1.0f, 0.0f);
+		glTexCoord2f(1,1); glVertex3f(1.0f, 1.0f, 0.0f);
+		glTexCoord2f(1,0); glVertex3f(1.0f, -1.0f, 0.0f);
+		glEnd();
+		//DrawIplImage(cameraFrame);
 	}
+	glDisable(GL_TEXTURE_2D);
 	//Draw grid
-	for(float x = -1.00f; x < 1.00f; x+=0.1f)
-	{
-		glBegin(GL_LINES);
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(x, -1.0);
-		glVertex2f(x, 1.0);
-		glEnd();
-	}
+	//for(float x = -1.00f; x < 1.00f; x+=0.1f)
+	//{
+	//	glBegin(GL_LINES); 	
+	//	glColor3f(1.0f, 0.0f, 0.0f);
+	//	glVertex2f(x, -1.0); 
+	//	glVertex2f(x, 1.0);  
+	//	glEnd();  
+	//}
 
-	drawAxes();
-	for(float y = -1.00f; y < 1.00f; y+=0.1f)
-	{
-		glBegin(GL_LINES);
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex2f(-1.0, y);
-		glVertex2f(1.0, y);
-		glEnd();
-	}
-	platform.draw();
-	block.draw();
+	//drawAxes();
+	//for(float y = -1.00f; y < 1.00f; y+=0.1f)
+	//{
+	//	glBegin(GL_LINES); 	
+	//	glColor3f(0.0f, 1.0f, 0.0f);
+	//	glVertex2f(-1.0, y); 
+	//	glVertex2f(1.0, y);  
+	//	glEnd();  
+	//}
 	bBall.draw();
-
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	platform.draw();
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	drawBlocks();
-
+	glDisable(GL_TEXTURE_2D);
 	glutSwapBuffers();
 }
 
@@ -159,15 +226,16 @@ void DrawIplImage(IplImage *image)
 	GLfloat xZoom = 1.3333333333f;
 	GLfloat yZoom = 1.3333333333f;
     GLenum format;
-    switch(image->nChannels)
+    switch(image->nChannels) 
 	{
         case 1: format = GL_LUMINANCE; break;
         case 2: format = GL_LUMINANCE_ALPHA; break;
         case 3: format = GL_BGR_EXT; break;
         default: return;
     }
-	glPushMatrix();
-	glRasterPos2f(x, y);
+	glPushMatrix(); 
+	//glRotatef(xLook, yLook, zLook);
+	glRasterPos3f(-0.5, -0.5, -0.5);
     glPixelZoom(xZoom, yZoom);
     glDrawPixels(image->width, image->height, format, GL_UNSIGNED_BYTE, image->imageData);
 	glPopMatrix();
@@ -196,7 +264,7 @@ void generateDefaultLevel()
 			cntr++;
 		}
 	}
-	cout << "yay" << endl;
+	//cout << "yay" << endl;
 }
 
 void switchBlocksDownAbove(int x, int y, int z)
@@ -237,17 +305,17 @@ void updateCameraFrame()
 	cvReleaseImage(&cameraFrame);
 	cvReleaseImage(&frame);
 	cvReleaseImage(&frame2);
-
+	
 	//Get latest camera frame
 	frame = cvQueryFrame( capture );
 	//Make sure that width = height
-	cvSetImageROI(frame, cvRect(0,0,480, 480));
+	cvSetImageROI(frame, cvRect(0,0,480, 480)); 
 	IplImage *frameRegion = cvCreateImage(cvGetSize(frame),
                                frame->depth,
                                frame->nChannels);
 	cvCopy(frame, frameRegion, NULL);
 	cameraFrame = frameRegion;
-
+	
 	//Convert to grayscale
 	IplImage *gray = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 1 );
 	cvCvtColor(frame, gray, CV_RGB2GRAY );
@@ -256,22 +324,22 @@ void updateCameraFrame()
 
 	//Split image in 2
 	//Lower region
-	cvSetImageROI(frame, cvRect(0,0,480, 240));
+	cvSetImageROI(frame, cvRect(0,0,480, 240)); 
 	IplImage *frameRegion2 = cvCreateImage(cvGetSize(frame),
                                frame->depth,
                                frame->nChannels);
 	cvCopy(frame, frameRegion2, NULL);
 	frame2 = frameRegion2;
-
+	
 	//Upper region
-	cvSetImageROI(frame, cvRect(0,240,480, 480));
+	cvSetImageROI(frame, cvRect(0,240,480, 480)); 
 	IplImage *frameRegion3 = cvCreateImage(cvGetSize(frame),
                                frame->depth,
                                frame->nChannels);
 	cvCopy(frame, frameRegion3, NULL);
 	frame = frameRegion3;
 
-	//cvReleaseImage(&gray);
+	cvReleaseImage(&gray);
 	//printf("\n%dx%d", frame->width, frame->height);printf("\n%dx%d", frame->width, frame->height);
 }
 
@@ -279,7 +347,7 @@ void analyseUpperFrame()
 {
 	IplImage *img = frame;
     IplImage *cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
-
+ 
     cvThreshold(img, img, 100, 200, CV_THRESH_BINARY_INV);
 
     mem = cvCreateMemStorage(0);
@@ -288,7 +356,7 @@ void analyseUpperFrame()
     cvFindContours(img, mem, &contours, sizeof(CvContour), CV_RETR_CCOMP,
         CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
 
-    for (ptr = contours; ptr != NULL; ptr = ptr->h_next)
+    for (ptr = contours; ptr != NULL; ptr = ptr->h_next) 
 	{
         //CvScalar color = CV_RGB( rand()&255, rand()&255, rand()&255 );
         cvDrawContours(cc_color, ptr, CV_RGB(255,0,0), CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
@@ -297,7 +365,7 @@ void analyseUpperFrame()
                     cvPoint(boundingRect.x+boundingRect.width,
                     boundingRect.y+boundingRect.height),
                     CV_RGB(1.0,0.5,0.5),1,8,0);
-
+		
 		//printf("Size: %d", contours->total);
     }
 
@@ -310,7 +378,7 @@ void analyseLowerFrame()
 {
 	IplImage *img = frame2;
     IplImage *cc_color = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 3);
-
+ 
     cvThreshold(img, img, 100, 200, CV_THRESH_BINARY_INV);
 
     mem = cvCreateMemStorage(0);
@@ -321,7 +389,7 @@ void analyseLowerFrame()
 
 	int largestArea = 0;
 	Rect largestRect;
-    for (ptr = contours; ptr != NULL; ptr = ptr->h_next)
+    for (ptr = contours; ptr != NULL; ptr = ptr->h_next) 
 	{
         //CvScalar color = CV_RGB( rand()&255, rand()&255, rand()&255 );
         cvDrawContours(cc_color, ptr, CV_RGB(255,0,0), CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
@@ -332,7 +400,7 @@ void analyseLowerFrame()
 			largestArea = currentArea;
 			largestRect = boundingRect;
 		}
-
+		
 		//printf("Size: %d", contours->total);
     }
 	cvRectangle(cc_color,cvPoint(largestRect.x,largestRect.y),
@@ -340,8 +408,9 @@ void analyseLowerFrame()
                     largestRect.y+largestRect.height),
                     CV_RGB(1.0,0.5,0.5),1,8,0);
 		//printf("\nX: %d", largestRect.x);
-	float platformX = -1.0f+(largestRect.x*1.0f/240);
-	platform.moveTo(platformX);
+	float platformX = -1.0f+((largestRect.x+largestRect.width/2)*1.0f/240);
+	float platformY = -1.0f+((largestRect.y+largestRect.height/2)*1.0f/240);
+	platform.moveTo(platformX, platformY);
 	frame2 = cc_color;
 	cvReleaseImage(&img);
 	cvReleaseMemStorage(&mem);
@@ -350,7 +419,7 @@ void analyseLowerFrame()
 void analyseCameraFrame()
 {
 	analyseLowerFrame();
-	analyseUpperFrame();
+	//analyseUpperFrame();
 }
 
 void checkCollisionBall()
@@ -381,7 +450,6 @@ void checkCollisionBall()
 
 void IdleFunc(int value)
 {
-	//printf("idling\n");
 	updateCameraFrame();
 	analyseCameraFrame();
 	bBall.update();
@@ -389,12 +457,10 @@ void IdleFunc(int value)
 	checkCollisionBall();
 
 	glutPostRedisplay();
-
-	//glutTimerFunc(10, IdleFunc, 0);
+	glutTimerFunc(10, IdleFunc, 0);
 }
 
 void Idle() {
-	
 	IdleFunc(0);
 }
 void Keyboard(unsigned char key, int x, int y)
@@ -403,15 +469,40 @@ void Keyboard(unsigned char key, int x, int y)
 	{
 		case 'd': platform.moveLeft(); break;
 		case 'l': platform.moveRight(); break;
-		//case 'z': xLook+=0.1f; printf("X: %f", xLook); break;
-		//case 'x': yLook+=0.1f; printf("Y: %f", yLook); break;
-		//case 'c': zLook+=0.1f; printf("Z: %f", zLook); break;
-		//case 'q': xLook-=0.1f; printf("X: %f", xLook); break;
-		//case 'w': yLook-=0.1f; printf("Y: %f", yLook); break;
-		//case 'e': zLook-=0.1f; printf("Z: %f", zLook); break;
-		case 'i' : IdleFunc(0); break;
-		case 'a' : removeBlock(5, 2, 0);
+		case 'z': xLook+=0.1f; printf("\nX: %f", xLook); break;
+		case 'x': yLook+=0.1f; printf("\nY: %f", yLook); break;
+		case 'c': zLook+=0.1f; printf("\nZ: %f", zLook); break;
+		case 'q': xLook-=0.1f; printf("\nX: %f", xLook); break;
+		case 'w': yLook-=0.1f; printf("\nY: %f", yLook); break;
+		case 'e': zLook-=0.1f; printf("\nZ: %f", zLook); break;
+		case 'v': yFar+=0.1f; printf("\nYFar: %f", yFar); break;
+		case 'b': yFar-=0.1f; printf("\nYFar: %f", yFar); break;
 	}
+}
+
+void setLight(void)
+{
+	////////////////////////////////Lighting Implementation////////////////////////////////////////
+	//Andrew Experimental///////////////////////////////////////////////////////////////////////////
+	glClearColor(0,0,0,0);
+	glEnable(GL_DEPTH_TEST);
+
+   GLfloat mat_specular[] = { 0.8, 0.5, 0.2, 1.0 };
+   GLfloat mat_shininess[] = { 1 }; //experiment with this one
+   GLfloat light_position[] = { 1.0, 1.0, 1.0, 1.0 };
+   //glClearColor (0.0, 0.0, 0.0, 0.0);
+   glShadeModel (GL_SMOOTH);
+
+   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+   glEnable(GL_COLOR_MATERIAL);
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT0);
+   glEnable(GL_DEPTH_TEST);
+
+	////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 int main(int argc, char* argv[])
@@ -419,6 +510,7 @@ int main(int argc, char* argv[])
 	bBall = BouncingBall(0.0f, 0.0f);
 	platform = Platform(0.0f, -1.0f);
 	generateDefaultLevel();
+
 
 	glutInit (&argc, argv);
 	glutInitWindowSize (640, 640);
@@ -432,9 +524,19 @@ int main(int argc, char* argv[])
 	glutKeyboardFunc (Keyboard);
 	glutMouseFunc (MouseButton);
 	glutMotionFunc (MouseMotion);
-		glutIdleFunc (Idle);
+	glutIdleFunc (Idle);
+
+	setLight();
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	// load texture as compressed
+	textures[0] = LoadTexture("metal.bmp");
+	textures[1] = LoadTexture("asteroid.bmp");
+
 	// Turn the flow of control over to GLUT
 	glutMainLoop ();
 
 	return 0;
 }
+

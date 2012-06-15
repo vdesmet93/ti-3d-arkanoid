@@ -29,9 +29,10 @@ void Platform:: moveRight()
 	if(x+w > 1.0f){x = 1.0f-w;}
 }
 
-void Platform:: moveTo(float x2)
+void Platform:: moveTo(float x2, float y2)
 {
-	this->x = x2;
+	this->x = x2-(w/2);
+	this->y = y2-(h/2);
 	if(x < -1.0f){x = -1.0f;}
 	else if(x+w > 1.0f){x = 1.0f-w;}
 }
@@ -49,42 +50,44 @@ void Platform:: update()
 
 void Platform:: draw()
 {
+	glNormal3f(1.0f, 0.0f, 0.0f);
+
 	glBegin(GL_QUADS);
-	glColor3f(0.0f, 0.0f, 1.0f);
+	glColor3f(0.0f, 0.0f, 0.5f);
 	//back
-	glVertex3f(x, y, z);
-	glVertex3f(x, y+h, z);
-	glVertex3f(x+w, y+h, z);
-	glVertex3f(x+w, y, z);
+	glTexCoord2f(0,0); glVertex3f(x, y, z);
+	glTexCoord2f(0,1); glVertex3f(x, y+h, z);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x+w, y, z);
 	//front
-	glVertex3f(x, y, z+d);
-	glVertex3f(x, y+h, z+d);
-	glVertex3f(x+w, y+h, z+d);
-	glVertex3f(x+w, y, z+d);
+	glTexCoord2f(0,0); glVertex3f(x, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x, y+h, z+d);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z+d);
+	glTexCoord2f(1,0); glVertex3f(x+w, y, z+d);
 
-	glColor3f(0.0f, 1.0f, 0.0f);
+	glColor3f(0.0f, 0.5f, 0.0f);
 	//down
-	glVertex3f(x, y, z+d);
-	glVertex3f(x+w, y, z+d);
-	glVertex3f(x+w, y, z);
-	glVertex3f(x, y, z);
+	glTexCoord2f(0,0); glVertex3f(x, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x+w, y, z+d);
+	glTexCoord2f(1,1); glVertex3f(x+w, y, z);
+	glTexCoord2f(1,0); glVertex3f(x, y, z);
 	//up
-	glVertex3f(x, y+h, z+d);
-	glVertex3f(x+w, y+h, z+d);
-	glVertex3f(x+w, y+h, z);
-	glVertex3f(x, y+h, z);
+	glTexCoord2f(0,0); glVertex3f(x, y+h, z+d);
+	glTexCoord2f(0,1); glVertex3f(x+w, y+h, z+d);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x, y+h, z);
 
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3f(0.5f, 0.0f, 0.0f);
 	//left
-	glVertex3f(x, y, z+d);
-	glVertex3f(x, y, z);
-	glVertex3f(x, y+h, z);
-	glVertex3f(x, y+h, z+d);
+	glTexCoord2f(0,0); glVertex3f(x, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x, y, z);
+	glTexCoord2f(1,1); glVertex3f(x, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x, y+h, z+d);
 	//right
-	glVertex3f(x+w, y, z+d);
-	glVertex3f(x+w, y, z);
-	glVertex3f(x+w, y+h, z);
-	glVertex3f(x+w, y+h, z+d);
+	glTexCoord2f(0,0); glVertex3f(x+w, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x+w, y, z);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x+w, y+h, z+d);
 
 	glEnd();
 }

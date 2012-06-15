@@ -25,45 +25,48 @@ void Block:: update()
 
 void Block:: draw()
 {
+	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 
 	glColor3f(red, green, blue);
 	//back
-	glVertex3f(x, y, z);
-	glVertex3f(x, y+h, z);
-	glVertex3f(x+w, y+h, z);
-	glVertex3f(x+w, y, z);
+	glTexCoord2f(0,0); glVertex3f(x, y, z);
+	glTexCoord2f(0,1); glVertex3f(x, y+h, z);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x+w, y, z);
 	//front
-	glVertex3f(x, y, z+d);
-	glVertex3f(x, y+h, z+d);
-	glVertex3f(x+w, y+h, z+d);
-	glVertex3f(x+w, y, z+d);
+	glTexCoord2f(0,0); glVertex3f(x, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x, y+h, z+d);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z+d);
+	glTexCoord2f(1,0); glVertex3f(x+w, y, z+d);
 
 	//down
-	glVertex3f(x, y, z+d);
-	glVertex3f(x+w, y, z+d);
-	glVertex3f(x+w, y, z);
-	glVertex3f(x, y, z);
+	glTexCoord2f(0,0); glVertex3f(x, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x+w, y, z+d);
+	glTexCoord2f(1,1); glVertex3f(x+w, y, z);
+	glTexCoord2f(1,0); glVertex3f(x, y, z);
 	//up
-	glVertex3f(x, y+h, z+d);
-	glVertex3f(x+w, y+h, z+d);
-	glVertex3f(x+w, y+h, z);
-	glVertex3f(x, y+h, z);
+	glTexCoord2f(0,0); glVertex3f(x, y+h, z+d);
+	glTexCoord2f(0,1); glVertex3f(x+w, y+h, z+d);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x, y+h, z);
 
 	//left
-	glVertex3f(x, y, z+d);
-	glVertex3f(x, y, z);
-	glVertex3f(x, y+h, z);
-	glVertex3f(x, y+h, z+d);
+	glTexCoord2f(0,0); glVertex3f(x, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x, y, z);
+	glTexCoord2f(1,1); glVertex3f(x, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x, y+h, z+d);
 	//right
-	glVertex3f(x+w, y, z+d);
-	glVertex3f(x+w, y, z);
-	glVertex3f(x+w, y+h, z);
-	glVertex3f(x+w, y+h, z+d);
+	glTexCoord2f(0,0); glVertex3f(x+w, y, z+d);
+	glTexCoord2f(0,1); glVertex3f(x+w, y, z);
+	glTexCoord2f(1,1); glVertex3f(x+w, y+h, z);
+	glTexCoord2f(1,0); glVertex3f(x+w, y+h, z+d);
 
 	glEnd();
 
-	glColor3f(0, 0, 0);
+	glDisable(GL_TEXTURE_2D);
+	glLineWidth(4.0f);
+	glColor3f(0.0f, 0.0f, 0.0f);
 		glBegin(GL_LINE_STRIP);
 	//front
 	glVertex3f(x, y, z+d);
@@ -107,6 +110,8 @@ void Block:: draw()
 	glVertex3f(x+w, y+h, z);
 	glVertex3f(x+w, y+h, z+d);
 	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
 }
 bool Block:: isEnabled()
 {
