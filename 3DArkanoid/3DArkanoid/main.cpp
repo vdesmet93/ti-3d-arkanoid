@@ -32,6 +32,8 @@ float cX, cY;
 CvMemStorage *mem;
 CvSeq *contours, *ptr; 
 
+int score = 0;
+
 //Test
 //IplImage *img, *cc_color;
 bool cameraTextureLoaded = false;
@@ -104,7 +106,35 @@ void drawAxes()
 	glVertex3f(0, 0, 0);
 	glVertex3f(0, 1000, 0);
 	glEnd();
+}
 
+void drawScore()
+{
+	char buf[20];
+	sprintf(buf, "Score: %i", score);
+	string scoreString = buf;
+
+	glDisable(GL_COLOR_MATERIAL);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_LIGHT0);
+	glDisable(GL_DEPTH_TEST);
+	//Assume we are in MODEL_VIEW already
+	glPushMatrix ();
+	glLoadIdentity ();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix ();
+	glLoadIdentity();
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glRasterPos2f(-1, -1);
+	
+	for(int i = 0; i < scoreString.length(); i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, scoreString[i]);
+	}
+	glPopMatrix ();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix ();
 }
 
 void drawBlocks()
@@ -216,6 +246,11 @@ void Display(void)
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	drawBlocks();
 	glDisable(GL_TEXTURE_2D);
+	
+	//glDisable(GL_LIGHTING);
+
+	drawScore();
+
 	glutSwapBuffers();
 }
 
@@ -243,6 +278,7 @@ void DrawIplImage(IplImage *image)
 
 void generateDefaultLevel()
 {
+	float size = 0.2f;
 	int cntr = 5;
 	level.resize(10);
 	for(int x = 0; x < 10; x++)
@@ -254,10 +290,10 @@ void generateDefaultLevel()
 			level[x][y].resize(cntr);
 			for(int z = 0; z < cntr; z++)
 			{
-				float x2= 0.1*x-0.1*level[x].size();
-				float y2 = 0.1*y+0.4;
-				level[x][y][z].setCoordinates(x2, y2, z*0.1);
-				level[x][y][z].setDimensions(0.1f, 0.1f, 0.1f);
+				float x2= size*x-size*level[x].size();
+				float y2 = size*y+0.4;
+				level[x][y][z].setCoordinates(x2, y2, z*size);
+				level[x][y][z].setDimensions(size,size, size);
 				level[x][y][z].setColor(1.0, 1.0, 1.0);
 				grid[x][y] = true;
 			}
@@ -442,6 +478,7 @@ void checkCollisionBall()
 				if(bBall.collide(level[x][y][0]))
 				{
 					removeBlock(x, y, 0);
+					score++;
 				}
 			}
 		}
@@ -525,8 +562,6 @@ int main(int argc, char* argv[])
 	glutMouseFunc (MouseButton);
 	glutMotionFunc (MouseMotion);
 	glutIdleFunc (Idle);
-
-	setLight();
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
