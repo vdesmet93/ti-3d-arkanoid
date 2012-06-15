@@ -1,19 +1,14 @@
 
 #include <stdlib.h>
-#ifdef __GNUC__
-#include <GL/glut.h>
-#include <opencv/highgui.h>
-#else#include <glut.h>
-#include "highgui.h"
-#endif
-#include <GL/gl.h>
+#include <glut.h>
+#include <gl/GL.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include "bouncingBall.h"
 #include "platform.h"
 #include "block.h"
-
+#include "highgui.h"
 #include "cvblob.h"
 #include <iostream>
 using namespace cv;
@@ -27,7 +22,7 @@ Platform platform;
 float xLook =0.0f, yLook = 0.0f, zLook =0.0f;
 bool grid[10][10];
 Block block;
-vector<vector<vector<Block> > > level;
+vector<vector<vector<Block>>> level;
 
 //OpenCV
 IplImage *frame, *frame2, *cameraFrame; //frame: upper region; frame2: lower region; cameraFrame: camera view
@@ -86,9 +81,7 @@ void drawBlocks()
 			{
 				if(level[x][y][z].isEnabled())
 				{
-					float x2= 0.1*x-0.1*level[x].size();
-					float y2 = 0.1*y+0.4;
-					level[x][y][z].draw(x2, y2, z*0.1, 0.2, 0.2, 0.2);
+					level[x][y][z].draw();
 				}
 			}
 		}
@@ -118,12 +111,12 @@ void Display(void)
 	glLoadIdentity();
 	if( frame )
 	{
-		//glPushMatrix();
-		//glTranslatef(0.0f, 1.0f, 0.0f);
-		//DrawIplImage(frame);
-		//glPopMatrix();
-		//DrawIplImage(frame2);
-		//DrawIplImage(cameraFrame);
+		glPushMatrix();
+		glTranslatef(0.0f, 1.0f, 0.0f);
+		DrawIplImage(frame);
+		glPopMatrix();
+		DrawIplImage(frame2);
+		DrawIplImage(cameraFrame);
 	}
 	//Draw grid
 	for(float x = -1.00f; x < 1.00f; x+=0.1f)
@@ -190,7 +183,7 @@ void generateDefaultLevel()
 				float x2= 0.1*x-0.1*level[x].size();
 				float y2 = 0.1*y+0.4;
 				level[x][y][z].setCoordinates(x2, y2, z*0.1);
-				level[x][y][z].setDimensions(0.2f, 0.2f, 0.2f);
+				level[x][y][z].setDimensions(0.1f, 0.1f, 0.1f);
 				level[x][y][z].setColor(1.0, 1.0, 1.0);
 				grid[x][y] = true;
 			}
@@ -202,10 +195,11 @@ void generateDefaultLevel()
 
 void switchBlocksDownAbove(int x, int y, int z)
 {
-	for(int idx = y; idx < level[x][y].size()-1; idx++)
+	for(int idx = z; idx < level[x][y].size()-1; idx++)
 	{
-		level[x][idx][z] = level[x][idx+1][z];
-		level[x][idx+1][z].disable();
+		level[x][y][idx+1].drop();
+		level[x][y][idx] = level[x][y][idx+1];
+		level[x][y][idx+1].disable();
 	}
 }
 
@@ -364,67 +358,38 @@ void checkCollisionBall()
 		}
 	}
 	//blocks check
-	for(int x = 0; x < level[x].size(); x++)
+	for(int x = 0; x < level.size(); x++)
 	{
-		for(int z = 0; z < level[x][0].size(); z++)
+		for(int y = 0; y < level[x].size(); y++)
 		{
-			if(bBall.collide(level[x][0][z]))
+			if(bBall.intersects(level[x][y][0]) && level[x][y][0].isEnabled())
 			{
-				removeBlock(x, 0, z);
+				if(bBall.collide(level[x][y][0]))
+				{
+					removeBlock(x, y, 0);
+				}
 			}
 		}
 	}
-
-
-
-
-
-	/*int x = (5.0f*(bBall.getCenterX()+1.0f));
-	int y = (5.0f*(bBall.getCenterY()+1.0f));
-
-	cout << x << " " << y << endl;
-
-
-
-	if(bBall.intersects(level[x][y+1][0]))
-	{
-		bBall.collide(level[x][y+1][0]);
-		removeBlock(x, y+1, 0);
-	}
-	else if(bBall.intersects(level[x+1][y][0]))
-	{
-		bBall.collide(level[x+1][y][0]);
-		removeBlock(x+1, y, 0);
-	}
-	else if(bBall.intersects(level[x-1][y][0]))
-	{
-		bBall.collide(level[x-1][y][0]);
-		removeBlock(x-1, y, 0);
-	}
-	else if(bBall.intersects(level[x][y-1][0]))
-	{
-		bBall.collide(level[x][y-1][0]);
-		removeBlock(x, y-1, 0);
-	}*/
 }
 
 void IdleFunc(int value)
 {
-	printf("idling\n");
-	//updateCameraFrame();
-	//analyseCameraFrame();
+	//printf("idling\n");
+	updateCameraFrame();
+	analyseCameraFrame();
 	bBall.update();
 	platform.update();
 	checkCollisionBall();
 
 	glutPostRedisplay();
 
-	glutTimerFunc(10, IdleFunc, 0);
+	//glutTimerFunc(10, IdleFunc, 0);
 }
 
 void Idle() {
 	
-	//IdleFunc(0);
+	IdleFunc(0);
 }
 void Keyboard(unsigned char key, int x, int y)
 {
@@ -439,6 +404,7 @@ void Keyboard(unsigned char key, int x, int y)
 		//case 'w': yLook-=0.1f; printf("Y: %f", yLook); break;
 		//case 'e': zLook-=0.1f; printf("Z: %f", zLook); break;
 		case 'i' : IdleFunc(0); break;
+		case 'a' : removeBlock(5, 2, 0);
 	}
 }
 
