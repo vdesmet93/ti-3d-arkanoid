@@ -56,6 +56,25 @@ void analyseUpperFrame();
 void analyseLowerFrame();
 void setLight(void);
 
+void playSound(char* sound)
+{
+	char* wpurl = sound;
+
+			int len = strlen(wpurl)+1;
+			  wchar_t *wText = new wchar_t[len];
+		      if ( wText == 0 )
+		      return;
+		      memset(wText,0,len);
+              ::MultiByteToWideChar(  CP_ACP, NULL,wpurl, -1, wText,len );
+
+              //now pass wText
+			 PlaySound(wText, NULL, SND_ASYNC);
+
+  
+			// when finish using wText dont forget to delete it
+			delete []wText;
+}
+
 void initTexture(IplImage* frameImg)
 {
 
@@ -478,7 +497,9 @@ void checkCollisionBall()
 		if(bBall.collide(platform))
 		{
 			platform.applyBoost(bBall);
-			char* wpurl = "ballBounce.wav";
+			playSound("ballBounce.wav");
+
+			/*char* wpurl = "ballBounce.wav";
 
 			int len = strlen(wpurl)+1;
 			  wchar_t *wText = new wchar_t[len];
@@ -492,7 +513,7 @@ void checkCollisionBall()
 
   
 			// when finish using wText dont forget to delete it
-			delete []wText;
+			delete []wText;*/
 		}
 	}
 	//blocks check
@@ -503,7 +524,9 @@ void checkCollisionBall()
 			if(bBall.intersects(level[x][y][0]) && level[x][y][0].isEnabled())
 			{
 				if(bBall.collide(level[x][y][0]))
-				{char* wpurl = "blockDestroy.wav";
+				{
+					playSound("blockDestroy.wav");
+					/*char* wpurl = "blockDestroy.wav";
 
 			int len = strlen(wpurl)+1;
 			  wchar_t *wText = new wchar_t[len];
@@ -517,7 +540,7 @@ void checkCollisionBall()
 
   
 			// when finish using wText dont forget to delete it
-			delete []wText;
+			delete []wText;*/
 
 					removeBlock(x, y, 0);
 					score+=100;
@@ -538,6 +561,7 @@ void IdleFunc(int value)
 		{
 			ballLost=true; 
 			lives--;
+			playSound("death");
 		}
 	}
 	platform.update();
